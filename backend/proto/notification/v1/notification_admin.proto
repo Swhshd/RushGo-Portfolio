@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package notification.v1;
+
+option go_package = "github.com/ticketbox/pkg/proto/notification/v1;notificationv1";
+
+import "booking/v1/booking.proto";
+import "google/protobuf/timestamp.proto";
+
+// NotificationAdminService exposes only a read-only projection of persisted
+// Notification delivery intent state to the authenticated Gateway.
+service NotificationAdminService {
+  rpc ListAdminOutboxEvents(booking.v1.ListAdminOutboxEventsRequest)
+      returns (booking.v1.ListAdminOutboxEventsResponse);
+  rpc ListMyNotifications(ListMyNotificationsRequest)
+      returns (ListMyNotificationsResponse);
+  rpc MarkMyNotificationRead(MarkMyNotificationReadRequest)
+      returns (MarkMyNotificationReadResponse);
+  rpc ListDeliveryExceptions(booking.v1.OperationsQuery)
+      returns (booking.v1.OperationsBookings);
+}
+
+// Caller identity comes from the validated bearer token in gRPC metadata.
+// These messages intentionally contain no caller-supplied owner ID or payload.
+message ListMyNotificationsRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+  bool unread_only = 3;
+}
+
+message NotificationInboxItem {
+  string id = 1;
+  string type = 2;
+  string locale = 3;
+  string title = 4;
+  string body = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp read_at = 7;
+  string booking_id = 8;
+  string detail_path = 9;
+  string source = 10;
+  string event_id = 11;
+}
+
+message ListMyNotificationsResponse {
+  repeated NotificationInboxItem notifications = 1;
+  int64 total = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+  int64 unread_count = 5;
+}
+
+message MarkMyNotificationReadRequest {
+  string notification_id = 1;
+}
+
+message MarkMyNotificationReadResponse {
+  string id = 1;
+  google.protobuf.Timestamp read_at = 2;
+}

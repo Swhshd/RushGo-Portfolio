@@ -1,0 +1,200 @@
+syntax = "proto3";
+
+package payment.v1;
+
+option go_package = "github.com/ticketbox/pkg/proto/payment/v1;paymentv1";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+service PaymentService {
+    rpc GetMoneyMetrics(MoneyMetricsQuery) returns (MoneyMetrics);
+    // Booking mTLS only; stored Payment evidence, no provider network requests.
+    rpc GetOperationsPayment(FinancialPaymentRequest) returns (OperationsPayment);
+    // Saga-only recovery authority; never expose through public HTTP.
+    rpc GetPaidRecoveryPaymentSnapshot(FinancialPaymentRequest) returns (PaidRecoveryPaymentSnapshot);
+    rpc GetUnusedRefundPaymentSnapshot(UnusedRefundPaymentSnapshotRequest) returns (UnusedRefundPaymentSnapshot);
+    rpc AcceptApprovedUnusedRefundDecision(AcceptApprovedUnusedRefundDecisionRequest) returns (PaymentEntry);
+    rpc CreatePayment(CreatePaymentRequest) returns (CreatePaymentResponse);
+    // Booking-only: retrieve the original intent; never create a payment.
+    rpc ResumePayment(FinancialPaymentRequest) returns (CreatePaymentResponse);
+    rpc GetPaymentById(GetPaymentByIdReq) returns (PaymentEntry);
+    rpc GetPayments(GetPaymentsReqeust) returns (PaymentList);
+    rpc UpdatePaymentStatus(UpdatePaymentStatusRequest) returns (google.protobuf.Empty);
+    rpc UpdatePayment(UpdatePaymentRequest) returns (google.protobuf.Empty);
+    rpc DeletePayment(DeletePaymentRequest) returns (google.protobuf.Empty);
+    rpc UpdatePaymentStatusByPaymentIntentId(UpdatePaymentStatusByPaymentIntentIdReq) returns (google.protobuf.Empty);
+    rpc GetPaymentByPaymentIntentId(GetPaymentByIntentIdReq) returns (PaymentEntry);
+    rpc MakeRefundPayment(MakeRefundPaymentReq) returns (google.protobuf.Empty);
+    rpc GetPaymentsByBookingIds(GetPaymentsByBookingIdsReq) returns (PaymentList);
+    rpc RequestPaymentResolution(PaymentResolutionRequest) returns (PaymentEntry);
+    rpc GetFinancialPayment(FinancialPaymentRequest) returns (PaymentEntry);
+    rpc CheckAdmissionFinancialEligibility(AdmissionFinancialEligibilityRequest) returns (AdmissionFinancialEligibilityResponse);
+}
+
+message GetPaymentsByBookingIdsReq {
+  repeated string booking_ids = 1;
+}
+
+message GetPaymentByIntentIdReq {
+  string paymentIntentId = 1;
+}
+
+message MakeRefundPaymentReq {
+  string paymentIntentId = 1;
+  int32 price = 2;
+}
+
+message GetPaymentByIdReq {
+  string id = 1;
+}
+
+message PaymentEntry {
+  string id = 1;
+  string user_id = 2;
+  string booking_id = 3;
+  string order_id = 4;
+  string status = 5;
+  int32 price = 6;
+  string currency = 7;
+  string transaction_id = 8;
+  string payment_method = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+  string payment_intent_id = 12;
+  string provider_outcome = 13;
+  string provider_status = 14;
+  string reconciliation_state = 15;
+  string refund_state = 16;
+  int64 refund_amount_cents = 17;
+  string refund_id = 18;
+  string refund_status = 19;
+  int64 payment_generation = 20;
+  string booking_disposition = 21;
+  string attention_reason = 22;
+}
+
+message PaymentResolutionRequest {
+  string payment_id = 1;
+  string booking_id = 2;
+  int64 generation = 3;
+  string decision_id = 4;
+  string reason = 5;
+}
+
+message FinancialPaymentRequest {
+  string payment_id = 1;
+  string booking_id = 2;
+  int64 generation = 3;
+}
+
+message PaidRecoveryPaymentSnapshot {
+  PaymentEntry payment = 1;
+  string provider_account = 2;
+  bool livemode = 3;
+  bool provider_identity_verified = 4;
+  AdmissionFinancialEligibilityResponse admission = 5;
+}
+
+message AdmissionFinancialEligibilityRequest {
+  string payment_id = 1;
+  string booking_id = 2;
+  int64 generation = 3;
+}
+
+enum AdmissionEligibilityState {
+  ADMISSION_ELIGIBILITY_STATE_UNKNOWN = 0;
+  ADMISSION_ELIGIBILITY_STATE_ELIGIBLE = 1;
+  ADMISSION_ELIGIBILITY_STATE_DENIED = 2;
+}
+
+enum AdmissionDisputeEvidenceState {
+  ADMISSION_DISPUTE_EVIDENCE_STATE_UNKNOWN = 0;
+  ADMISSION_DISPUTE_EVIDENCE_STATE_PROVIDER_OBSERVED_NO_DISPUTE = 1;
+  ADMISSION_DISPUTE_EVIDENCE_STATE_DISPUTE_PRESENT = 2;
+}
+
+enum AdmissionRefundEvidenceState {
+  ADMISSION_REFUND_EVIDENCE_STATE_UNKNOWN = 0;
+  ADMISSION_REFUND_EVIDENCE_STATE_PROVIDER_OBSERVED_NO_REFUND = 1;
+  ADMISSION_REFUND_EVIDENCE_STATE_REFUND_PRESENT = 2;
+}
+
+message AdmissionFinancialEligibilityResponse {
+  AdmissionEligibilityState eligibility_state = 1;
+  AdmissionDisputeEvidenceState dispute_state = 2;
+  AdmissionRefundEvidenceState refund_state = 3;
+  google.protobuf.Timestamp observed_at = 4;
+  string source = 5;
+  string reason_code = 6;
+}
+
+message CreatePaymentRequest {
+  string user_id = 1;
+  string booking_id = 2;
+  int32 price = 3;
+  string currency = 4;
+  string payment_method = 5;
+  string user_email = 6;
+  int64 payment_generation = 7;
+}
+
+message CreatePaymentResponse {
+  string id = 1;
+  string status = 2;
+  string paymentIntentId = 3;
+  string paymentIntentClientSecret = 4;
+  string create_state = 5;
+  int32 retry_after_seconds = 6;
+}
+
+message GetPaymentsReqeust {
+  string user_id = 1;
+  string status = 2;
+  string booking_id = 3;
+  int32 price = 4;
+  string currency = 5;
+  string payment_method = 6;
+}
+
+message PaymentList {
+  repeated PaymentEntry payments = 1;
+}
+
+
+message UpdatePaymentStatusRequest {
+  string id = 1;
+  string status = 2;
+}
+
+message UpdatePaymentStatusByPaymentIntentIdReq {
+  string paymentIntentId = 1;
+  string status = 2;
+}
+
+message UpdatePaymentRequest {
+  string id = 1;
+  string order_id = 2;
+  string transaction_id = 3;
+  string status = 4;
+}
+
+message DeletePaymentRequest {
+  string id = 1;
+}
+
+message AcceptApprovedUnusedRefundDecisionRequest { string booking_id = 1; string refund_decision_id = 2; string payment_id = 3; int64 generation = 4; }
+
+// Internal Booking-only snapshot; never expose provider identity via public HTTP.
+message UnusedRefundPaymentSnapshotRequest { string booking_id = 1; string payment_id = 2; int64 generation = 3; bool for_approval = 4; }
+message UnusedRefundPaymentSnapshot {
+ string booking_id = 1; string payment_id = 2; string buyer_id = 3; string payment_intent_id = 4;
+ string provider_account = 5; bool livemode = 6; int64 generation = 7;
+ int64 amount_cents = 8; string currency = 9; string refund_decision_id = 10;
+ string refund_state = 11; int64 refund_amount_cents = 12; string refund_status = 13; bool collected = 14; bool eligible_for_approval = 15;
+}
+
+message OperationsPayment { PaymentEntry payment = 1; bool refund_prepared_stale = 2; google.protobuf.Timestamp observed_at = 3; }
+
+message MoneyMetricsQuery { google.protobuf.Timestamp from=1; google.protobuf.Timestamp to=2; }
+message MoneyMetric { string currency=1; string mode=2; int64 payments=3; int64 unknown_payments=4; int64 confirmed_refunds=5; int64 collected_known_minor=6; int64 refunded_known_minor=7; }
+message MoneyMetrics { repeated MoneyMetric groups=1; google.protobuf.Timestamp observed_at=2; }

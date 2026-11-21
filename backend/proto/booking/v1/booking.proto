@@ -1,0 +1,384 @@
+syntax = "proto3";
+
+package booking.v1;
+
+option go_package = "github.com/ticketbox/pkg/proto/booking/v1;bookingv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+
+service BookingService {
+    rpc GetPublicFeatures(google.protobuf.Empty) returns (PublicFeatures);
+    rpc ListFeatureFlags(google.protobuf.Empty) returns (FeatureFlags);
+    rpc ChangeFeatureFlag(ChangeFeatureFlagRequest) returns (FeatureFlag);
+    rpc GetOperationsMetrics(OperationsQuery) returns (OperationsMetrics);
+    rpc ListOperationsBookings(OperationsQuery) returns (OperationsBookings);
+    rpc ListStaffWork(StaffWorkQuery) returns (StaffWorkList);
+    // Saga-only, no buyer credentials or ticket QR data are returned.
+    rpc GetPaidRecoveryTicketSnapshot(LifecycleRequest) returns (PaidRecoveryTicketSnapshot);
+    rpc RequestBookingRefund(RequestBookingRefundRequest) returns (BookingRefund);
+    rpc GetBookingRefund(GetBookingRefundRequest) returns (BookingRefund);
+    rpc WithdrawBookingRefund(WithdrawBookingRefundRequest) returns (BookingRefund);
+    rpc ListEventBookingRefunds(ListEventBookingRefundsRequest) returns (ListEventBookingRefundsResponse);
+    rpc DecideBookingRefund(DecideBookingRefundRequest) returns (BookingRefund);
+    rpc SetEventRefundApprover(SetEventRefundApproverRequest) returns (EventRefundApprover);
+    rpc ListEventRefundApprovers(ListEventRefundApproversRequest) returns (ListEventRefundApproversResponse);
+    rpc GetApprovedUnusedRefundDecision(GetApprovedUnusedRefundDecisionRequest) returns (ApprovedUnusedRefundDecision);
+
+    rpc CreateBooking(CreateBookingRequest) returns (BookingDetail);
+    rpc GetBooking(GetBookingRequest) returns (BookingDetail);
+    rpc ListUserBookings(ListUserBookingsRequest) returns (ListUserBookingsResponse);
+    rpc CancelBooking(CancelBookingRequest) returns (BookingDetail);
+    rpc ResumeBooking(CancelBookingRequest) returns (BookingDetail);
+    rpc UpdateBookingStatusById(UpdateBookingStatusByIdReq) returns (google.protobuf.Empty);
+    rpc UpdateBookingStatusByIds(UpdateBookingStatusByIdsReq) returns (google.protobuf.Empty);
+    rpc GetLifecycleDisposition(LifecycleRequest) returns (LifecycleDisposition);
+    rpc DecideLifecycle(LifecycleDecisionRequest) returns (LifecycleDisposition);
+    rpc ListExpiryCandidates(ListExpiryCandidatesRequest) returns (ListExpiryCandidatesResponse);
+    rpc ListOwnedTickets(ListOwnedTicketsRequest) returns (ListOwnedTicketsResponse);
+    rpc RotateTicketCredential(RotateTicketCredentialRequest) returns (TicketCredentialResponse);
+    rpc SetEventScannerAssignment(SetEventScannerAssignmentRequest) returns (EventScannerAssignmentResponse);
+    rpc ListEventScannerAssignments(ListEventScannerAssignmentsRequest) returns (ListEventScannerAssignmentsResponse);
+    rpc CheckInTicket(CheckInTicketRequest) returns (CheckInTicketResponse);
+    rpc ListAdminOutboxEvents(ListAdminOutboxEventsRequest) returns (ListAdminOutboxEventsResponse);
+    rpc GetAdminEventTicketOperations(GetAdminEventTicketOperationsRequest) returns (GetAdminEventTicketOperationsResponse);
+    rpc ListAdminEventTickets(ListAdminEventTicketsRequest) returns (ListAdminEventTicketsResponse);
+    rpc GetAdminBookingDetail(GetAdminBookingDetailRequest) returns (AdminBookingDetail);
+}
+
+message UpdateBookingStatusByIdsReq{
+    repeated string booking_ids = 1;
+    string status = 2;
+}
+message CreateBookingRequest {
+    string user_id = 1;
+    string event_id = 2;
+    repeated BookingItemRequest items = 3;
+    string booking_mode = 4;
+    string request_id = 5;
+}
+
+message BookingItemRequest {
+    string ticket_tier_id = 1;
+    int32 quantity = 2;
+    repeated string seat_ids = 3; // Selected seat IDs for this booking item
+}
+
+message GetBookingRequest {
+    string booking_id = 1;
+}
+
+message ListUserBookingsRequest {
+    string user_id = 1;
+    int32 page = 2;
+    int32 page_size = 3;
+}
+
+message ListUserBookingsResponse {
+    repeated BookingDetail bookings = 1;
+    int32 total = 2;
+}
+
+message CancelBookingRequest {
+    string booking_id = 1;
+    string user_id = 2;
+}
+
+message BookingDetail {
+    string id = 1;
+    string user_id = 2;
+    string event_id = 3;
+    string status = 4;
+    int64 total_amount_cents = 5;
+    repeated BookingItem items = 6;
+    google.protobuf.Timestamp created_at = 7;
+    string paymentIntentClientSecret = 8;
+    string creation_state = 9;
+    int32 retry_after_seconds = 10;
+    int64 lifecycle_generation = 11;
+    string currency = 12;
+    string checkout_state = 13;
+    google.protobuf.Timestamp reservation_deadline = 14;
+    bool can_cancel = 15;
+}
+
+message BookingItem {
+    string id = 1;
+    string ticket_tier_id = 2;
+    string tier_name = 3;
+    int32 quantity = 4;
+    int64 unit_price_cents = 5;
+    repeated string seat_ids = 6; // Booked seat IDs for this item
+}
+
+message UpdateBookingStatusByIdReq {
+  string id = 1;
+  string status = 2;
+}
+
+message LifecycleRequest {
+  string booking_id = 1;
+  int64 generation = 2;
+}
+message PaidRecoveryTicketSnapshot {
+  string booking_id = 1;
+  string saga_id = 2;
+  int64 generation = 3;
+  int64 ticket_count = 4;
+  int64 issuance_receipt_count = 5;
+  google.protobuf.Timestamp observed_at = 6;
+}
+message LifecycleDecisionRequest {
+  string booking_id = 1;
+  int64 generation = 2;
+  string decision_id = 3;
+  string kind = 4;
+  string reason = 5;
+  int32 expected_version = 6;
+  string confirmation_decision_id = 7;
+}
+message LifecycleDisposition {
+  BookingDetail booking = 1;
+  int64 generation = 2;
+  string phase = 3;
+  string decision_id = 4;
+  string reason = 5;
+  int32 version = 6;
+  string currency = 7;
+  string booking_mode = 8;
+  google.protobuf.Timestamp reservation_deadline = 9;
+  string dispatch_state = 10;
+  string confirmation_decision_id = 11;
+}
+message ListExpiryCandidatesRequest {
+  int32 limit = 1;
+  string after_id = 2;
+}
+message ListExpiryCandidatesResponse {
+  repeated LifecycleDisposition bookings = 1;
+}
+
+message ListOwnedTicketsRequest { string user_id = 1; }
+message ListOwnedTicketsResponse { repeated TicketDetail tickets = 1; }
+message TicketDetail {
+    string id = 1;
+    string booking_id = 2;
+    string event_id = 3;
+    string seat_id = 4;
+    string ticket_tier_id = 5;
+    string status = 6;
+    google.protobuf.Timestamp issued_at = 7;
+    google.protobuf.Timestamp checked_in_at = 8;
+    string booking_status = 9;
+}
+message RotateTicketCredentialRequest {
+    string user_id = 1;
+    string ticket_id = 2;
+    string idempotency_key = 3;
+}
+message TicketCredentialResponse {
+    string credential = 1;
+    google.protobuf.Timestamp expires_at = 2;
+    string outcome = 3;
+    int64 credential_version = 4;
+}
+message SetEventScannerAssignmentRequest {
+    string event_id = 1;
+    string staff_user_id = 2;
+    string actor_user_id = 3;
+    bool active = 4;
+}
+message EventScannerAssignmentResponse {
+    string event_id = 1;
+    string staff_user_id = 2;
+    bool active = 3;
+    google.protobuf.Timestamp changed_at = 4;
+}
+message ListEventScannerAssignmentsRequest { string event_id = 1; }
+message ListEventScannerAssignmentsResponse { repeated EventScannerAssignmentResponse assignments = 1; }
+message CheckInTicketRequest {
+    string event_id = 1;
+    string staff_user_id = 2;
+    string credential = 3;
+    string idempotency_key = 4;
+}
+message CheckInTicketResponse {
+    string result_code = 1;
+    string reason_code = 2;
+    google.protobuf.Timestamp checked_in_at = 3;
+    bool replayed = 4;
+    string evidence_source = 5;
+    google.protobuf.Timestamp observed_at = 6;
+}
+
+message ListAdminOutboxEventsRequest {
+    string source = 1;
+    string status = 2;
+    string event_type = 3;
+    string from = 4;
+    string to = 5;
+    int32 limit = 6;
+    string cursor = 7;
+}
+
+message AdminOutboxEventRecord {
+    string event_id = 1;
+    string source_service = 2;
+    string event_type = 3;
+    google.protobuf.Timestamp created_at = 4;
+    string recorded_status = 5;
+    string consumer_outcome = 6;
+}
+
+message ListAdminOutboxEventsResponse {
+    repeated AdminOutboxEventRecord records = 1;
+    string next_cursor = 2;
+    bool has_more = 3;
+    google.protobuf.Timestamp observed_at = 4;
+    google.protobuf.Timestamp from = 5;
+    google.protobuf.Timestamp to = 6;
+    repeated string supported_event_types = 7;
+    int32 source_record_limit = 8;
+    string consumer_outcome = 9;
+}
+
+message GetAdminEventTicketOperationsRequest {
+    string event_id = 1;
+}
+
+message GetAdminEventTicketOperationsResponse {
+    string event_id = 1;
+    google.protobuf.Timestamp observed_at = 2;
+    int32 total_recorded_count = 3;
+    int32 issued_count = 4;
+    int32 checked_in_count = 5;
+    int32 revoked_count = 6;
+    int32 successful_checkin_count = 7;
+    google.protobuf.Timestamp latest_checkin_at = 8;
+    repeated google.protobuf.Timestamp recent_checkins = 9;
+    int32 source_record_limit = 10;
+    repeated AdminEventAfterSalesException delivery_exceptions = 11;
+}
+
+// Booking-owned delivery facts only; CONFIRMED does not assert provider collection.
+message AdminEventAfterSalesException {
+    string booking_id = 1;
+    string state = 2;
+    string booking_status = 3;
+    int64 expected_ticket_count = 4;
+    int64 recorded_ticket_count = 5;
+    string issuance_receipt_outcome = 6;
+    string issuance_reason_code = 7;
+    google.protobuf.Timestamp booking_created_at = 8;
+}
+
+message ListAdminEventTicketsRequest {
+    string event_id = 1;
+    string status_filter = 2;
+    int32 page_size = 3;
+    string cursor = 4;
+}
+
+message AdminEventTicketRecord {
+    string ticket_id = 1;
+    string status = 2;
+    google.protobuf.Timestamp issued_at = 3;
+    google.protobuf.Timestamp checked_in_at = 4;
+    google.protobuf.Timestamp revoked_at = 5;
+}
+
+message ListAdminEventTicketsResponse {
+    string event_id = 1;
+    google.protobuf.Timestamp observed_at = 2;
+    string status_filter = 3;
+    int32 page_size = 4;
+    bool has_more = 5;
+    string next_cursor = 6;
+    repeated AdminEventTicketRecord tickets = 7;
+    int32 source_record_limit = 8;
+}
+
+message GetAdminBookingDetailRequest { string booking_id = 1; }
+
+message AdminBookingDetailTicket {
+    string ticket_id = 1;
+    string status = 2;
+    string seat_id = 3;
+    string ticket_tier_id = 4;
+    google.protobuf.Timestamp issued_at = 5;
+    google.protobuf.Timestamp checked_in_at = 6;
+    google.protobuf.Timestamp revoked_at = 7;
+}
+
+message AdminBookingDetailReceipt {
+    string outcome = 1;
+    string reason_code = 2;
+    int32 ticket_count = 3;
+    int32 receipt_count = 4;
+    google.protobuf.Timestamp observed_at = 5;
+    google.protobuf.Timestamp created_at = 6;
+}
+
+message AdminBookingDetail {
+    BookingDetail booking = 1;
+    int64 lifecycle_generation = 2;
+    string lifecycle_phase = 3;
+    string currency = 4;
+    string booking_mode = 5;
+    repeated AdminBookingDetailTicket tickets = 6;
+    AdminBookingDetailReceipt receipt = 7;
+    bool receipt_present = 8;
+    BookingRefund refund = 9;
+    bool refund_present = 10;
+    google.protobuf.Timestamp observed_at = 11;
+}
+
+// Actor identity comes only from verified Gateway credentials, never this payload.
+message RequestBookingRefundRequest { string booking_id = 1; string reason = 2; string idempotency_key = 3; }
+message GetBookingRefundRequest { string booking_id = 1; }
+message WithdrawBookingRefundRequest { string request_id = 1; string idempotency_key = 2; }
+message DecideBookingRefundRequest { string event_id = 1; string request_id = 2; string decision = 3; string reason = 4; string idempotency_key = 5; }
+message ListEventBookingRefundsRequest { string event_id = 1; string cursor = 2; int32 page_size = 3; }
+message ListEventBookingRefundsResponse { repeated BookingRefund refunds = 1; string next_cursor = 2; bool approval_enabled = 3; string approval_block_reason = 4; }
+message BookingRefund {
+ string request_id = 1; string booking_id = 2; string event_id = 3; string status = 4;
+ string reason = 5; string decision_reason = 6; string refund_decision_id = 7;
+ int64 amount_cents = 8; string currency = 9;
+ google.protobuf.Timestamp requested_at = 10; google.protobuf.Timestamp decided_at = 11;
+ string payment_refund_state = 12; string ticket_revocation_state = 13;
+ bool can_withdraw = 14; bool approval_enabled = 15; string eligibility_code = 16;
+}
+message SetEventRefundApproverRequest { string event_id = 1; string staff_user_id = 2; bool active = 3; }
+message EventRefundApprover { string event_id = 1; string staff_user_id = 2; bool active = 3; google.protobuf.Timestamp changed_at = 4; }
+message ListEventRefundApproversRequest { string event_id = 1; }
+message ListEventRefundApproversResponse { repeated EventRefundApprover assignments = 1; }
+// Internal Payment-only authority. Never exposed verbatim through public HTTP.
+message GetApprovedUnusedRefundDecisionRequest { string booking_id = 1; string refund_decision_id = 2; }
+message ApprovedUnusedRefundDecision {
+ string refund_decision_id = 1; string status = 2; string buyer_id = 3;
+ string booking_id = 4; string event_id = 5; string payment_id = 6;
+ string payment_intent_id = 7; string provider_account = 8; int64 generation = 9;
+ int64 amount_cents = 10; string currency = 11; google.protobuf.Timestamp approved_at = 12;
+ google.protobuf.Timestamp event_starts_at = 13; string event_authority_version = 14;
+ string approver_id = 15; bool livemode = 16;
+ string qualification_attempt_id = 17; google.protobuf.Timestamp event_qualified_at = 18;
+}
+
+// Bounded read-only operations projections; no payment or ticket write controls.
+message OperationsQuery { google.protobuf.Timestamp from = 1; google.protobuf.Timestamp to = 2; int32 limit = 3; int32 offset = 4; }
+message OperationIssue { string kind = 1; string source = 2; string state = 3; google.protobuf.Timestamp observed_at = 4; string next_action = 5; }
+message OperationsBooking { string booking_id = 1; string event_id = 2; string booking_status = 3; google.protobuf.Timestamp created_at = 4; int64 ticket_count = 5; repeated OperationIssue issues = 6; string payment_source_state = 7; string refund_status = 8; }
+message OperationsBookings { repeated OperationsBooking items = 1; bool has_more = 2; google.protobuf.Timestamp observed_at = 3; string scope = 4; }
+message StaffWorkQuery { int32 limit = 1; int32 offset = 2; }
+message StaffWorkItem { string event_id = 1; string access = 2; int64 pending_refunds = 3; string title = 4; google.protobuf.Timestamp starts_at = 5; string event_state = 6; string event_source_state = 7; }
+message StaffWorkList { repeated StaffWorkItem items = 1; bool has_more = 2; google.protobuf.Timestamp observed_at = 3; }
+
+message PublicFeature { string key=1; bool enabled=2; }
+message PublicFeatures { repeated PublicFeature flags=1; }
+message FeatureFlag { string key=1; string description=2; bool default_enabled=3; bool enabled=4; int64 version=5; google.protobuf.Timestamp updated_at=6; string actor_id=7; }
+message FeatureChange { string key=1; bool before=2; bool after=3; int64 version=4; string actor_id=5; google.protobuf.Timestamp changed_at=6; }
+message FeatureFlags { repeated FeatureFlag flags=1; repeated FeatureChange audit=2; google.protobuf.Timestamp observed_at=3; }
+message ChangeFeatureFlagRequest { string key=1; bool enabled=2; int64 expected_version=3; }
+message MoneyMetric { string currency=1; string mode=2; int64 payments=3; int64 unknown_payments=4; int64 confirmed_refunds=5; int64 collected_known_minor=6; int64 refunded_known_minor=7; }
+message OperationsMetrics { int64 orders=1; int64 issued_tickets=2; int64 checked_in_tickets=3; int64 refund_requests=4; int64 confirmed_refunds=5; google.protobuf.Timestamp booking_observed_at=6; string payment_source_state=7; repeated MoneyMetric money=8; google.protobuf.Timestamp payment_observed_at=9; string scope=10; string payment_unavailable_reason=11; }

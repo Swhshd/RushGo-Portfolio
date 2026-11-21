@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package saga.v1;
+
+option go_package = "github.com/ticketbox/pkg/proto/saga/v1;sagav1";
+
+import "google/protobuf/timestamp.proto";
+
+service SagaOrchestratorService {
+  rpc StartOrderSaga(StartOrderSagaRequest) returns (OrderSagaResponse);
+  rpc CompensateOrderSaga(CompensateOrderSagaRequest) returns (OrderSagaResponse);
+  rpc ExpireOrderSaga(ExpireOrderSagaRequest) returns (ExpireOrderSagaResponse);
+  rpc SettleOrderSaga(SettleOrderSagaRequest) returns (OrderSagaResponse);
+  rpc VerifyTicketIssuanceSaga(VerifyTicketIssuanceSagaRequest) returns (VerifyTicketIssuanceSagaResponse);
+}
+
+message CompensateOrderSagaRequest {
+  string sagaId = 1;
+}
+
+
+
+message StartOrderSagaRequest {
+  string bookingId = 1;
+  repeated string seatIds = 2;
+  string userId = 3;
+  int32 totalCents = 4;
+  string eventId = 5;
+  int64 lifecycle_generation = 6;
+  int32 booking_version = 7;
+  google.protobuf.Timestamp reservation_deadline = 8;
+  string booking_mode = 9;
+  string currency = 10;
+}
+
+message OrderSagaResponse {
+    string status = 1;
+    string message = 2;
+    string paymentIntentClientSecret = 3;
+    string sagaId = 4;
+}
+
+message ExpireOrderSagaRequest {
+  string bookingId = 1;
+}
+
+message ExpireOrderSagaResponse {
+  bool expired = 1;
+  string sagaStatus = 2;
+}
+
+message SettleOrderSagaRequest {
+  string booking_id = 1;
+  int64 generation = 2;
+  string decision_id = 3;
+  string payment_id = 4;
+  string reason = 5;
+}
+
+message VerifyTicketIssuanceSagaRequest {
+  string saga_id = 1;
+  string booking_id = 2;
+  string payment_id = 3;
+  string event_id = 4;
+  int64 generation = 5;
+}
+
+enum TicketIssuanceSagaState {
+  TICKET_ISSUANCE_SAGA_STATE_UNKNOWN = 0;
+  TICKET_ISSUANCE_SAGA_STATE_DENIED = 1;
+  TICKET_ISSUANCE_SAGA_STATE_ELIGIBLE = 2;
+}
+
+message VerifyTicketIssuanceSagaResponse {
+  TicketIssuanceSagaState state = 1;
+  string reason_code = 2;
+}

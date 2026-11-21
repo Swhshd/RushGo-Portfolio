@@ -1,0 +1,1 @@
+DROP TABLE saga_ticket_issuance_outbox;

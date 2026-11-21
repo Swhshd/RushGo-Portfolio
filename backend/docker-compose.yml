@@ -1,0 +1,470 @@
+x-rushgo-grpc-client-environment: &rushgo-grpc-client-environment
+  RUSHGO_GRPC_CLIENT_CERT_FILE: /run/secrets/rushgo-grpc/client-cert.pem
+  RUSHGO_GRPC_CLIENT_KEY_FILE: /run/secrets/rushgo-grpc/client-key.pem
+  RUSHGO_GRPC_SERVER_CA_FILE: /run/secrets/rushgo-grpc/ca.pem
+  RUSHGO_BOOKING_GRPC_SERVER_NAME: booking-service
+  RUSHGO_EVENT_GRPC_SERVER_NAME: event-service
+  RUSHGO_PAYMENT_GRPC_SERVER_NAME: payment-service
+  RUSHGO_SAGA_GRPC_SERVER_NAME: saga-service
+
+x-rushgo-grpc-server-environment: &rushgo-grpc-server-environment
+  RUSHGO_GRPC_SERVER_CERT_FILE: /run/secrets/rushgo-grpc/server-cert.pem
+  RUSHGO_GRPC_SERVER_KEY_FILE: /run/secrets/rushgo-grpc/server-key.pem
+  RUSHGO_GRPC_CLIENT_CA_FILE: /run/secrets/rushgo-grpc/ca.pem
+
+services:
+  # ─── Databases ───
+  postgres-user:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ticketbox_user
+      POSTGRES_USER: ticketbox
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ticketbox_secret}
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata-user:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ticketbox -d ticketbox_user"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ticketbox-net
+
+  postgres-event:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ticketbox_event
+      POSTGRES_USER: ticketbox
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ticketbox_secret}
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata-event:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ticketbox -d ticketbox_event"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ticketbox-net
+
+  postgres-booking:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ticketbox_booking
+      POSTGRES_USER: ticketbox
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ticketbox_secret}
+    ports:
+      - "5435:5432"
+    volumes:
+      - pgdata-booking:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ticketbox -d ticketbox_booking"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ticketbox-net
+
+  postgres-notification:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ticketbox_notification
+      POSTGRES_USER: ticketbox
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ticketbox_secret}
+    ports:
+      - "5436:5432"
+    volumes:
+      - pgdata-notification:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ticketbox -d ticketbox_notification"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ticketbox-net
+
+  postgres-payment:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ticketbox_payment
+      POSTGRES_USER: ticketbox
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ticketbox_secret}
+    ports:
+      - "5437:5432"
+    volumes:
+      - pgdata-payment:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ticketbox -d ticketbox_payment"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ticketbox-net
+  postgres-saga:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ticketbox_saga
+      POSTGRES_USER: ticketbox
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ticketbox_secret}
+    ports:
+      - "5438:5432"
+    volumes:
+      - pgdata-saga:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ticketbox -d ticketbox_saga"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ticketbox-net
+  postgres-scheduler:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ticketbox_scheduler
+      POSTGRES_USER: ticketbox
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ticketbox_secret}
+    ports:
+      - "5439:5432"
+    volumes:
+      - pgdata-scheduler:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ticketbox -d ticketbox_scheduler"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ticketbox-net
+
+  # ─── Redis ───
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ticketbox-net
+
+  # ─── Kafka ───
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - ticketbox-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    depends_on:
+      zookeeper:
+        condition: service_started
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "kafka-broker-api-versions",
+          "--bootstrap-server",
+          "localhost:9092",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    networks:
+      - ticketbox-net
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    depends_on:
+      - kafka
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: ticketbox
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+    networks:
+      - ticketbox-net
+
+  # ─── Application Services ───
+  user-service:
+    build:
+      context: .
+      dockerfile: services/user/Dockerfile
+    environment:
+      SERVICE_NAME: user-service
+      GRPC_PORT: "50051"
+      <<: *rushgo-grpc-server-environment
+      DATABASE_URL: postgres://ticketbox:${POSTGRES_PASSWORD:-ticketbox_secret}@postgres-user:5432/ticketbox_user?sslmode=disable
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:29092
+      JWT_SECRET: ${JWT_SECRET:-your-jwt-secret-change-in-production}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_TLS_MODE: ${SMTP_TLS_MODE:-}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      AUTH_FRONTEND_ORIGIN: ${AUTH_FRONTEND_ORIGIN:-}
+    volumes:
+      - type: bind
+        source: ${RUSHGO_GRPC_CERT_ROOT:?set RUSHGO_GRPC_CERT_ROOT to the external certificate directory}/user
+        target: /run/secrets/rushgo-grpc
+        read_only: true
+    depends_on:
+      postgres-user:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ticketbox-net
+
+  event-service:
+    build:
+      context: .
+      dockerfile: services/event/Dockerfile
+    environment:
+      SERVICE_NAME: event-service
+      GRPC_PORT: "50052"
+      RUSHGO_EVENT_TICKET_AUTHORITY_LISTEN_ADDR: ":51052"
+      <<: *rushgo-grpc-server-environment
+      DATABASE_URL: postgres://ticketbox:${POSTGRES_PASSWORD:-ticketbox_secret}@postgres-event:5432/ticketbox_event?sslmode=disable
+      REDIS_URL: redis://redis:6379
+      SEAT_ADMISSION_MODE: ${SEAT_ADMISSION_MODE:-POSTGRES_ONLY}
+      KAFKA_BROKERS: kafka:29092
+    depends_on:
+      postgres-event:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - type: bind
+        source: ${RUSHGO_GRPC_CERT_ROOT:?set RUSHGO_GRPC_CERT_ROOT to the external certificate directory}/event
+        target: /run/secrets/rushgo-grpc
+        read_only: true
+    networks:
+      - ticketbox-net
+
+  booking-service:
+    build:
+      context: .
+      dockerfile: services/booking/Dockerfile
+    environment:
+      <<: [*rushgo-grpc-client-environment, *rushgo-grpc-server-environment]
+      SERVICE_NAME: booking-service
+      GRPC_PORT: "50053"
+      DATABASE_URL: postgres://ticketbox:${POSTGRES_PASSWORD:-ticketbox_secret}@postgres-booking:5432/ticketbox_booking?sslmode=disable
+      KAFKA_BROKERS: kafka:29092
+      USER_SERVICE_ADDR: user-service:50051
+      RUSHGO_USER_GRPC_SERVER_NAME: user-service
+      EVENT_SERVICE_ADDR: event-service:50052
+      EVENT_TICKET_AUTHORITY_ADDR: event-service:51052
+      BOOKING_MODE: ${BOOKING_MODE:-pessimistic}
+      REDIS_URL: redis://redis:6379
+      PAYMENT_SERVICE_ADDR: payment-service:50054
+      SAGA_SERVICE_ADDR: saga-service:50055
+      SAGA_TICKET_AUTHORITY_ADDR: saga-service:51055
+    volumes:
+      - type: bind
+        source: ${RUSHGO_GRPC_CERT_ROOT:?set RUSHGO_GRPC_CERT_ROOT to the external certificate directory}/booking
+        target: /run/secrets/rushgo-grpc
+        read_only: true
+    depends_on:
+      postgres-booking:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      event-service:
+        condition: service_started
+    networks:
+      - ticketbox-net
+  payment-service:
+    build:
+      context: .
+      dockerfile: services/payment/Dockerfile
+    ports:
+      # Local development only. A remote deployment must publish the webhook
+      # through an authenticated tunnel/proxy instead of widening this binding.
+      - "127.0.0.1:8081:8081"
+    environment:
+      <<: [*rushgo-grpc-client-environment, *rushgo-grpc-server-environment]
+      SERVICE_NAME: payment-service
+      GRPC_PORT: "50054"
+      DATABASE_URL: postgres://ticketbox:${POSTGRES_PASSWORD:-ticketbox_secret}@postgres-payment:5432/ticketbox_payment?sslmode=disable
+      KAFKA_BROKERS: kafka:29092
+      EVENT_SERVICE_ADDR: event-service:50052
+      BOOKING_SERVICE_ADDR: booking-service:50053
+      REDIS_URL: redis://redis:6379
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_SECRET_WEBHOOK: ${STRIPE_SECRET_WEBHOOK}
+    volumes:
+      - type: bind
+        source: ${RUSHGO_GRPC_CERT_ROOT:?set RUSHGO_GRPC_CERT_ROOT to the external certificate directory}/payment
+        target: /run/secrets/rushgo-grpc
+        read_only: true
+    depends_on:
+      postgres-payment:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      event-service:
+        condition: service_started
+    networks:
+      - ticketbox-net
+
+  saga-service:
+    build:
+      context: .
+      dockerfile: services/saga/Dockerfile
+    environment:
+      <<: [*rushgo-grpc-client-environment, *rushgo-grpc-server-environment]
+      SERVICE_NAME: saga-service
+      GRPC_PORT: "50055"
+      RUSHGO_SAGA_TICKET_AUTHORITY_LISTEN_ADDR: ":51055"
+      DATABASE_URL: postgres://ticketbox:${POSTGRES_PASSWORD:-ticketbox_secret}@postgres-saga:5432/ticketbox_saga?sslmode=disable
+      KAFKA_BROKERS: kafka:29092
+      EVENT_SERVICE_ADDR: event-service:50052
+      BOOKING_SERVICE_ADDR: booking-service:50053
+      REDIS_URL: redis://redis:6379
+      PAYMENT_SERVICE_ADDR: payment-service:50054
+    volumes:
+      - type: bind
+        source: ${RUSHGO_GRPC_CERT_ROOT:?set RUSHGO_GRPC_CERT_ROOT to the external certificate directory}/saga
+        target: /run/secrets/rushgo-grpc
+        read_only: true
+    depends_on:
+      postgres-saga:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      booking-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+    networks:
+      - ticketbox-net
+
+  scheduler-service:
+    build:
+      context: .
+      dockerfile: services/scheduler/Dockerfile
+    environment:
+      <<: *rushgo-grpc-client-environment
+      SERVICE_NAME: scheduler-service
+      GRPC_PORT: "50056"
+      DATABASE_URL: postgres://ticketbox:${POSTGRES_PASSWORD:-ticketbox_secret}@postgres-scheduler:5432/ticketbox_scheduler?sslmode=disable
+      KAFKA_BROKERS: kafka:29092
+      BOOKING_SERVICE_ADDR: booking-service:50053
+      EVENT_SERVICE_ADDR: event-service:50052
+      PAYMENT_SERVICE_ADDR: payment-service:50054
+      SAGA_SERVICE_ADDR: saga-service:50055
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - type: bind
+        source: ${RUSHGO_GRPC_CERT_ROOT:?set RUSHGO_GRPC_CERT_ROOT to the external certificate directory}/scheduler
+        target: /run/secrets/rushgo-grpc
+        read_only: true
+    depends_on:
+      postgres-scheduler:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      booking-service:
+        condition: service_started
+      saga-service:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    networks:
+      - ticketbox-net
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: services/notification/Dockerfile
+    environment:
+      SERVICE_NAME: notification-service
+      DATABASE_URL: postgres://ticketbox:${POSTGRES_PASSWORD:-ticketbox_secret}@postgres-notification:5432/ticketbox_notification?sslmode=disable
+      KAFKA_BROKERS: kafka:29092
+    depends_on:
+      postgres-notification:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - ticketbox-net
+
+  gateway:
+    build:
+      context: .
+      dockerfile: services/gateway/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      <<: *rushgo-grpc-client-environment
+      SERVICE_NAME: gateway
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
+      HTTP_PORT: "8000"
+      USER_SERVICE_ADDR: user-service:50051
+      RUSHGO_USER_GRPC_SERVER_NAME: user-service
+      EVENT_SERVICE_ADDR: event-service:50052
+      BOOKING_SERVICE_ADDR: booking-service:50053
+      PAYMENT_SERVICE_ADDR: payment-service:50054
+      SCHEDULER_SERVICE_ADDR: scheduler-service:50056
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-your-jwt-secret-change-in-production}
+    volumes:
+      - type: bind
+        source: ${RUSHGO_GRPC_CERT_ROOT:?set RUSHGO_GRPC_CERT_ROOT to the external certificate directory}/gateway
+        target: /run/secrets/rushgo-grpc
+        read_only: true
+    depends_on:
+      - user-service
+      - event-service
+      - booking-service
+      - scheduler-service
+      - redis
+    networks:
+      - ticketbox-net
+
+volumes:
+  pgdata-user:
+  pgdata-event:
+  pgdata-booking:
+  pgdata-payment:
+  pgdata-saga:
+  pgdata-notification:
+  pgdata-scheduler:
+  redis-data:
+
+networks:
+  ticketbox-net:
+    driver: bridge

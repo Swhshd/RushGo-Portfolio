@@ -1,0 +1,133 @@
+services:
+  otel-collector:
+    image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.162.0
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    volumes:
+      - ./observability/collector-config.yaml:/etc/otelcol-contrib/config.yaml:ro
+    ports:
+      - "13133:13133"
+    depends_on:
+      tempo:
+        condition: service_started
+    networks:
+      - ticketbox-net
+
+  tempo:
+    image: grafana/tempo:3.1.0
+    command: ["-config.file=/etc/tempo/tempo.yaml"]
+    volumes:
+      - tempo-data:/var/tempo
+      - ./observability/tempo.yaml:/etc/tempo/tempo.yaml:ro
+    ports:
+      - "3201:3200"
+    networks:
+      - ticketbox-net
+
+  prometheus:
+    image: prom/prometheus:v3.15.0
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=6h"
+      - "--web.enable-lifecycle"
+    volumes:
+      - prometheus-data:/prometheus
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./observability/mvp-alerts.yml:/etc/prometheus/mvp-alerts.yml:ro
+    ports:
+      - "9093:9090"
+    depends_on:
+      otel-collector:
+        condition: service_started
+    networks:
+      - ticketbox-net
+
+  grafana:
+    image: grafana/grafana:13.2.3
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3001:3000"
+    depends_on:
+      prometheus:
+        condition: service_started
+      tempo:
+        condition: service_started
+    networks:
+      - ticketbox-net
+
+  user-service:
+    environment:
+      OTEL_ENABLED: ${OTEL_ENABLED:-true}
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      OTEL_SERVICE_NAME: user-service
+      OTEL_ENVIRONMENT: local-demo
+      OTEL_TRACES_SAMPLER_RATIO: "1.0"
+
+  event-service:
+    environment:
+      OTEL_ENABLED: ${OTEL_ENABLED:-true}
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      OTEL_SERVICE_NAME: event-service
+      OTEL_ENVIRONMENT: local-demo
+      OTEL_TRACES_SAMPLER_RATIO: "1.0"
+
+  booking-service:
+    environment:
+      OTEL_ENABLED: ${OTEL_ENABLED:-true}
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      OTEL_SERVICE_NAME: booking-service
+      OTEL_ENVIRONMENT: local-demo
+      OTEL_TRACES_SAMPLER_RATIO: "1.0"
+
+  payment-service:
+    environment:
+      OTEL_ENABLED: ${OTEL_ENABLED:-true}
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      OTEL_SERVICE_NAME: payment-service
+      OTEL_ENVIRONMENT: local-demo
+      OTEL_TRACES_SAMPLER_RATIO: "1.0"
+
+  saga-service:
+    environment:
+      OTEL_ENABLED: ${OTEL_ENABLED:-true}
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      OTEL_SERVICE_NAME: saga-service
+      OTEL_ENVIRONMENT: local-demo
+      OTEL_TRACES_SAMPLER_RATIO: "1.0"
+
+  scheduler-service:
+    environment:
+      OTEL_ENABLED: ${OTEL_ENABLED:-true}
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      OTEL_SERVICE_NAME: scheduler-service
+      OTEL_ENVIRONMENT: local-demo
+      OTEL_TRACES_SAMPLER_RATIO: "1.0"
+
+  notification-service:
+    environment:
+      OTEL_ENABLED: ${OTEL_ENABLED:-true}
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      OTEL_SERVICE_NAME: notification-service
+      OTEL_ENVIRONMENT: local-demo
+      OTEL_TRACES_SAMPLER_RATIO: "1.0"
+
+  gateway:
+    environment:
+      OTEL_ENABLED: ${OTEL_ENABLED:-true}
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      OTEL_SERVICE_NAME: gateway
+      OTEL_ENVIRONMENT: local-demo
+      OTEL_TRACES_SAMPLER_RATIO: "1.0"
+
+volumes:
+  tempo-data:
+  prometheus-data:
+  grafana-data:

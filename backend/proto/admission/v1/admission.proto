@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package admission.v1;
+option go_package = "github.com/ticketbox/pkg/proto/admission/v1;admissionv1";
+
+// Internal only: verified Booking mTLS identity is the only caller.
+service PaymentAdmissionCoordinator {
+  rpc PrepareAdmission(Identity) returns (Permit);
+  rpc GetAdmission(Identity) returns (Permit);
+  rpc ReconcileAdmission(ResolutionRequest) returns (Permit);
+}
+
+// Internal only: verified Payment mTLS identity is the only caller.
+service BookingAdmissionAuthority {
+  rpc ResolveAdmission(ResolutionRequest) returns (Outcome);
+}
+
+message Identity {
+  string request_id = 1;
+  string payment_id = 2;
+  string booking_id = 3;
+  string ticket_id = 4;
+  string event_id = 5;
+  string user_id = 6;
+  string actor_id = 7;
+  int64 generation = 8;
+  bytes key_digest = 9;
+  bytes fingerprint = 10;
+}
+
+message Permit {
+  Identity identity = 1;
+  string token = 2;
+  int64 fence = 3;
+  string state = 4;
+  int64 observed_at_unix_nano = 5;
+  string source = 6;
+  int64 created_at_unix_nano = 7;
+}
+
+message ResolutionRequest {
+  Identity identity = 1;
+  // Empty token/fence is a read-only proof of persisted Booking intent.
+  string token = 2;
+  int64 fence = 3;
+  // Only Booking authority accepts this flag; Payment reconciliation always
+  // reads the authoritative Booking outcome, never a caller-supplied result.
+  bool abort_pending = 4;
+}
+
+message Outcome {
+  Identity identity = 1;
+  string token = 2;
+  int64 fence = 3;
+  string state = 4;
+  string result_code = 5;
+}

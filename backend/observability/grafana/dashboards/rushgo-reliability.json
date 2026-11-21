@@ -1,0 +1,140 @@
+{
+  "id": null,
+  "uid": "rushgo-reliability",
+  "title": "RushGo — Booking Reliability & Realtime",
+  "tags": ["rushgo", "m5", "observability"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": {"from": "now-30m", "to": "now"},
+  "templating": {"list": []},
+  "panels": [
+    {
+      "type": "row",
+      "title": "Service RED",
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Request rate by service",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "sum by (exported_job) (rate(http_server_request_duration_seconds_count[$__rate_interval]))", "legendFormat": "{{exported_job}}", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 1}
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP P95 duration",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "histogram_quantile(0.95, sum by (le, exported_job) (rate(http_server_request_duration_seconds_bucket[$__rate_interval])))", "legendFormat": "{{exported_job}}", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 1}
+    },
+    {
+      "type": "row",
+      "title": "Seat Contention",
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 9},
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Redis admission outcomes",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "sum by (mode, result) (rate(rushgo_seat_admission_attempts_total[$__rate_interval]))", "legendFormat": "{{mode}} / {{result}}", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 10}
+    },
+    {
+      "type": "timeseries",
+      "title": "PostgreSQL reservation attempts",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "sum by (result) (rate(rushgo_seat_postgres_reservation_attempts_total[$__rate_interval]))", "legendFormat": "{{result}}", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 10}
+    },
+    {
+      "type": "row",
+      "title": "Reliable Events",
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 18},
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Outbox pending",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "rushgo_outbox_pending", "legendFormat": "pending", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 19}
+    },
+    {
+      "type": "timeseries",
+      "title": "Outbox publish results",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "sum by (event_type, result) (rate(rushgo_outbox_publish_total[$__rate_interval]))", "legendFormat": "{{event_type}} / {{result}}", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 19}
+    },
+    {
+      "type": "timeseries",
+      "title": "Notification duplicate suppression",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "sum by (event_type, result) (rate(rushgo_notification_processed_total[$__rate_interval]))", "legendFormat": "{{event_type}} / {{result}}", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 19}
+    },
+    {
+      "type": "row",
+      "title": "Realtime",
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 27},
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Active SSE connections",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "rushgo_sse_active_connections", "legendFormat": "active", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 28}
+    },
+    {
+      "type": "timeseries",
+      "title": "Realtime fanout deliveries",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "sum by (result) (rate(rushgo_sse_fanout_deliveries_total[$__rate_interval]))", "legendFormat": "{{result}}", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 28}
+    },
+    {
+      "type": "timeseries",
+      "title": "Subscription generation events",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "sum by (event) (rate(rushgo_realtime_subscription_generation_events_total[$__rate_interval]))", "legendFormat": "{{event}}", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 28}
+    },
+    {
+      "type": "row",
+      "title": "Scheduler / Saga / Payment",
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 36},
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Scheduler runs",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "sum by (result) (rate(rushgo_scheduler_runs_total[$__rate_interval]))", "legendFormat": "{{result}}", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 37}
+    },
+    {
+      "type": "timeseries",
+      "title": "Saga transitions",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "sum by (transition, result) (rate(rushgo_saga_transitions_total[$__rate_interval]))", "legendFormat": "{{transition}} / {{result}}", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 37}
+    },
+    {
+      "type": "timeseries",
+      "title": "Payment webhook events",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "sum by (event_type, result) (rate(rushgo_payment_webhook_events_total[$__rate_interval]))", "legendFormat": "{{event_type}} / {{result}}", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 37}
+    }
+  ]
+}

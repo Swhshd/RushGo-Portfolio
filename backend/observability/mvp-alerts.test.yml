@@ -1,0 +1,42 @@
+rule_files:
+  - /rules.yml
+evaluation_interval: 30s
+tests:
+  - name: actual-readiness-failure-is-actionable
+    interval: 30s
+    input_series:
+      - series: 'rushgo_database_available{db_service="booking-service"}'
+        values: '0+0x8'
+    promql_expr_test:
+      - expr: 'sum(ALERTS{alertname="RushGoDatabaseUnavailable",alertstate="firing"})'
+        eval_time: 2m
+        exp_samples:
+          - labels: '{}'
+            value: 1
+  - name: unavailable-authority-does-not-assert-paid-unissued
+    interval: 30s
+    input_series:
+      - series: 'rushgo_booking_observed_paid_unissued{job="otel-collector",instance="local"}'
+        values: '3+0x24'
+      - series: 'rushgo_booking_payment_observation_available{job="otel-collector",instance="local"}'
+        values: '0+0x24'
+    promql_expr_test:
+      - expr: 'ALERTS{alertname="RushGoObservedPaidUnissued",alertstate="firing"}'
+        eval_time: 10m
+        exp_samples: []
+      - expr: 'sum(ALERTS{alertname="RushGoFinancialObservationUnavailable",alertstate="firing"})'
+        eval_time: 10m
+        exp_samples:
+          - labels: '{}'
+            value: 1
+  - name: notification-counter-matches-the-exported-instrument
+    interval: 30s
+    input_series:
+      - series: 'rushgo_notification_processing_failures_total'
+        values: '0+1x24'
+    promql_expr_test:
+      - expr: 'sum(ALERTS{alertname="RushGoNotificationFailures",alertstate="firing"})'
+        eval_time: 3m
+        exp_samples:
+          - labels: '{}'
+            value: 1

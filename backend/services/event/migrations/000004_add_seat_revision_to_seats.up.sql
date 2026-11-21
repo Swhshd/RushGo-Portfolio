@@ -1,0 +1,2 @@
+ALTER TABLE seats
+ADD COLUMN seat_revision BIGINT NOT NULL DEFAULT 1;

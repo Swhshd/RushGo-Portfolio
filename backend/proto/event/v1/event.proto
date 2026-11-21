@@ -1,0 +1,377 @@
+syntax = "proto3";
+
+package event.v1;
+
+option go_package = "github.com/ticketbox/pkg/proto/event/v1;eventv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+
+service EventService {
+    rpc AcquireUnusedRefundTimePermit(RefundTimeBinding) returns (RefundTimePermit);
+    rpc ReleaseUnusedRefundTimePermit(ReleaseUnusedRefundTimePermitRequest) returns (RefundTimePermit);
+    rpc CreateEvent(CreateEventRequest) returns (EventDetail);
+    rpc GetEvent(GetEventRequest) returns (EventDetail);
+    rpc ListEvents(ListEventsRequest) returns (ListEventsResponse);
+    rpc GetAdminEvent(GetEventRequest) returns (EventDetail);
+    rpc ListAdminEvents(ListEventsRequest) returns (ListEventsResponse);
+    rpc UpdateEvent(UpdateEventRequest) returns (EventDetail);
+    rpc UpdateEventSales(UpdateEventSalesRequest) returns (EventDetail);
+    rpc CheckEventSaleEligibility(CheckEventSaleEligibilityRequest) returns (CheckEventSaleEligibilityResponse);
+    rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
+    rpc GetTicketAvailability(GetTicketAvailabilityRequest) returns (TicketAvailabilityResponse);
+    rpc UpdateTicketAvailability(UpdateTicketAvailabilityRequest) returns (TicketTier);
+    rpc UpdateBatchTicketAvailability(UpdateTicketAvailabilityRequest) returns (google.protobuf.Empty);
+    rpc GetSeatsOfEventByTierId(GetSeatsRequest) returns (GetSeatsResponse);
+    rpc UpdateSeatStatus(UpdateSeatStatusRequest) returns (UpdateSeatStatusResponse);
+    rpc UpdateBatchSeatStatus(UpdateBatchSeatStatusRequest) returns (google.protobuf.Empty);
+    rpc GetSeatsBySeatIds(GetSeatsBySeatIdsRequest)returns (GetSeatsResponse);
+    rpc VerifyBookingTicketEligibility(VerifyBookingTicketEligibilityRequest) returns (VerifyBookingTicketEligibilityResponse);
+    rpc ReservedOrCompensateBatchSeats(ReservedOrCompensateBatchSeatsReq) returns (ReservedOrCompensateBatchSeatsRes);
+    rpc UndoReservedExpiredSeats(UndoReservedExpiredSeatsReq) returns (UndoReservedExpiredSeatsRes);
+    rpc GetReservedExpiredSeats(GetReservedExpiredSeatsReq) returns (GetReservedExpiredSeatsRes);
+    rpc ApplySeatLifecycle(SeatLifecycleRequest) returns (SeatLifecycleResponse);
+    rpc ApplySaleAccounting(SeatLifecycleRequest) returns (SeatLifecycleResponse);
+    rpc ListMyEventInterests(ListMyEventInterestsRequest) returns (ListMyEventInterestsResponse);
+    rpc GetMyEventInterests(GetMyEventInterestsRequest) returns (GetMyEventInterestsResponse);
+    rpc UpsertMyEventInterest(UpsertMyEventInterestRequest) returns (EventInterest);
+    rpc WithdrawMyEventInterest(WithdrawMyEventInterestRequest) returns (EventInterest);
+    rpc DisableMyEventAlertEmails(DisableMyEventAlertEmailsRequest) returns (DisableMyEventAlertEmailsResponse);
+    rpc ReadEventInterestCounts(ReadEventInterestCountsRequest) returns (EventInterestCounts);
+}
+
+message EventInterest {
+    string id = 1;
+    string user_id = 2;
+    string event_id = 3;
+    string kind = 4;
+    string status = 5;
+    bool email_opt_in = 6;
+    string email_consent_version = 7;
+    google.protobuf.Timestamp email_consented_at = 8;
+    google.protobuf.Timestamp email_revoked_at = 9;
+    int64 version = 10;
+    google.protobuf.Timestamp created_at = 11;
+    google.protobuf.Timestamp updated_at = 12;
+}
+
+message ListMyEventInterestsRequest {
+    string user_id = 1;
+    string kind = 2;
+    int32 limit = 3;
+    int32 offset = 4;
+}
+message ListMyEventInterestsResponse {
+    repeated EventInterest items = 1;
+    int32 limit = 2;
+    int32 offset = 3;
+    bool has_more = 4;
+}
+message GetMyEventInterestsRequest { string user_id = 1; string event_id = 2; }
+message GetMyEventInterestsResponse {
+    string event_id = 1;
+    bool favorite = 2;
+    repeated EventInterest subscriptions = 3;
+    string sale_status = 4;
+    bool onsale_available = 5;
+    string restock_status = 6;
+}
+message UpsertMyEventInterestRequest {
+    string user_id = 1;
+    string event_id = 2;
+    string kind = 3;
+    bool email_opt_in = 4;
+    string email_consent_version = 5;
+}
+message WithdrawMyEventInterestRequest { string user_id = 1; string event_id = 2; string kind = 3; }
+message DisableMyEventAlertEmailsRequest { string user_id = 1; string kind = 2; }
+message DisableMyEventAlertEmailsResponse { string kind = 1; int32 updated = 2; }
+message ReadEventInterestCountsRequest { string event_id = 1; }
+message EventInterestCounts {
+    int64 favorites = 1;
+    int64 onsale = 2;
+    int64 restock = 3;
+    google.protobuf.Timestamp observed_at = 4;
+}
+
+message SeatLifecycleRequest {
+    string booking_id = 1;
+    string event_id = 2;
+    int64 generation = 3;
+    repeated string seat_ids = 4;
+    string seat_set_hash = 5;
+    string operation_id = 6;
+    string action = 7;
+    google.protobuf.Timestamp reservation_deadline = 8;
+    repeated LifecycleTierQuantity tiers = 9;
+}
+
+message LifecycleTierQuantity {
+    string tier_id = 1;
+    int32 quantity = 2;
+}
+
+message SeatLifecycleResponse {
+    string state = 1;
+    string accounting_state = 2;
+    bool applied = 3;
+    google.protobuf.Timestamp reservation_deadline = 4;
+}
+
+message UndoReservedExpiredSeatsRes{
+    map<string, SeatIds> booking_seat_ids_map = 1;
+}
+
+message GetReservedExpiredSeatsRes{
+    map<string, SeatIds> booking_seat_ids_map = 1;
+}
+
+message SeatIds{
+    repeated string seat_ids = 1;
+}
+
+message GetReservedExpiredSeatsReq {}
+
+message UndoReservedExpiredSeatsReq {}
+
+message ReservedOrCompensateBatchSeatsReq {
+    repeated string seat_ids = 1;
+    string action = 2;
+    int32 reservation_time_in_minutes = 3;
+    string reserved_by_booking_id = 4;
+    string event_id = 5;
+}
+
+
+message ReservedOrCompensateBatchSeatsRes {
+    bool success = 1;
+    string redis_status = 2;
+    bool redis_fallback = 3;
+    bool postgres_attempted = 4;
+    bool postgres_winner = 5;
+    bool postgres_conflict = 6;
+    bool postgres_error = 7;
+    int64 redis_latency_ns = 8;
+}
+
+message CreateEventRequest {
+    string title = 1;
+    string description = 2;
+    string category = 3;
+    string venue = 4;
+    string location = 5;
+    google.protobuf.Timestamp date = 6;
+    string image_url = 7;
+    repeated CreateTicketTierRequest tiers = 8;
+    string publication_status = 9;
+    string sales_status = 10;
+    google.protobuf.Timestamp sales_start_at = 11;
+    google.protobuf.Timestamp sales_end_at = 12;
+    string actor_id = 13;
+    string request_id = 14;
+}
+
+message CreateTicketTierRequest {
+    string name = 1;
+    int64 price_cents = 2;
+    int32 total_quantity = 3;
+}
+
+message GetEventRequest {
+    string event_id = 1;
+}
+
+message ListEventsRequest {
+    string category = 1;
+    string search = 2;
+    int32 page = 3;
+    int32 page_size = 4;
+    google.protobuf.Timestamp date_from = 5;
+    // Exclusive upper date/time boundary. The Gateway converts the public
+    // inclusive YYYY-MM-DD date_to into the following UTC midnight.
+    google.protobuf.Timestamp date_to_exclusive = 6;
+    string location = 7;
+    optional int64 min_price_cents = 8;
+    optional int64 max_price_cents = 9;
+    string sort = 10;
+}
+
+message ListEventsResponse {
+    repeated EventDetail events = 1;
+    int32 total = 2;
+    int32 page = 3;
+    int32 page_size = 4;
+}
+
+message UpdateEventRequest {
+    int64 expected_date_version = 9;
+    string event_id = 1;
+    string title = 2;
+    string description = 3;
+    string category = 4;
+    string venue = 5;
+    string location = 6;
+    google.protobuf.Timestamp date = 7;
+    string image_url = 8;
+}
+
+message UpdateEventSalesRequest {
+    string event_id = 1;
+    string publication_status = 2;
+    string sales_status = 3;
+    google.protobuf.Timestamp sales_start_at = 4;
+    google.protobuf.Timestamp sales_end_at = 5;
+    bool clear_sales_window = 6;
+}
+
+enum EventSaleEligibilityState {
+    EVENT_SALE_ELIGIBILITY_STATE_UNKNOWN = 0;
+    EVENT_SALE_ELIGIBILITY_STATE_DENIED = 1;
+    EVENT_SALE_ELIGIBILITY_STATE_ELIGIBLE = 2;
+}
+
+message CheckEventSaleEligibilityRequest {
+    string event_id = 1;
+}
+
+message CheckEventSaleEligibilityResponse {
+    EventSaleEligibilityState state = 1;
+    string reason_code = 2;
+}
+
+message DeleteEventRequest {
+    string event_id = 1;
+}
+
+message DeleteEventResponse {}
+
+message EventDetail {
+    int64 date_version = 12;
+    string id = 1;
+    string title = 2;
+    string description = 3;
+    string category = 4;
+    string venue = 5;
+    string location = 6;
+    google.protobuf.Timestamp date = 7;
+    string image_url = 8;
+    string status = 9;
+    repeated TicketTier tiers = 10;
+    google.protobuf.Timestamp created_at = 11;
+    string publication_status = 13;
+    string sales_status = 14;
+    google.protobuf.Timestamp sales_start_at = 15;
+    google.protobuf.Timestamp sales_end_at = 16;
+}
+
+message TicketTier {
+    string id = 1;
+    string event_id = 2;
+    string name = 3;
+    int64 price_cents = 4;
+    int32 total_quantity = 5;
+    int32 available_quantity = 6;
+    int32 version = 7;
+    // Read-only accounting readiness projection for this tier. False means the
+    // tier must not be sold or accepted for payment until its accounting
+    // evidence is repaired. Catalog responses treat an unknown projection as
+    // false; the sale-side guard remains authoritative.
+    bool accounting_ready = 8;
+}
+
+message GetTicketAvailabilityRequest {
+    string tier_id = 1;
+}
+
+message TicketAvailabilityResponse {
+    string tier_id = 1;
+    int32 available_quantity = 2;
+    int32 version = 3;
+    int64 price_cents = 4;
+    // Read-only accounting readiness projection. False means the tier must not
+    // be sold or accepted for payment until its accounting evidence is repaired.
+    bool accounting_ready = 5;
+}
+
+message UpdateTicketAvailabilityRequest {
+    string tier_id = 1;
+    int32 quantity_delta = 2;
+    int32 expected_version = 3;
+    string mode = 4;
+}
+
+// Seat selection messages
+message Seat {
+    string id = 1;
+    string event_id = 2;
+    string ticket_tier_id = 3;
+    string status = 4;
+    string booking_id = 5;
+    string order_id = 6;
+    string position = 7;
+    google.protobuf.Timestamp created_at = 8;
+    google.protobuf.Timestamp updated_at = 9;
+    int64 seat_revision = 10;
+}
+
+message GetSeatsRequest {
+    string event_id = 1;
+    string ticket_tier_id = 2; // optional filter
+}
+
+message GetSeatsResponse {
+    repeated Seat seats = 1;
+}
+
+message UpdateSeatStatusRequest {
+    string seat_id = 1;
+    string status = 2;
+    string booking_id = 3; // optional
+}
+
+message UpdateBatchSeatStatusRequest {
+    repeated string seat_ids = 1;
+    string status = 2;
+    string booking_id = 3;
+    string event_id = 4;
+}
+
+message UpdateSeatStatusResponse {
+    Seat seat = 1;
+}
+
+message GetSeatsBySeatIdsRequest {
+    repeated string seatIds = 1;
+}
+
+message VerifyBookingTicketEligibilityRequest {
+    string booking_id = 1;
+    string event_id = 2;
+    int64 generation = 3;
+    repeated string seat_ids = 4;
+}
+
+enum BookingTicketEligibilityState {
+    BOOKING_TICKET_ELIGIBILITY_STATE_UNKNOWN = 0;
+    BOOKING_TICKET_ELIGIBILITY_STATE_DENIED = 1;
+    BOOKING_TICKET_ELIGIBILITY_STATE_ELIGIBLE = 2;
+}
+
+message VerifyBookingTicketEligibilityResponse {
+    BookingTicketEligibilityState state = 1;
+    string reason_code = 2;
+}
+
+// Internal Booking-only Event time authority; dedicated verified mTLS listener.
+message RefundTimeBinding {
+ string attempt_id = 1; string request_id = 2; string booking_id = 3;
+ string payment_id = 4; string event_id = 5; string approver_id = 6;
+ int64 generation = 7; string fingerprint = 8;
+}
+message ReleaseUnusedRefundTimePermitRequest { RefundTimeBinding binding = 1; string outcome = 2; }
+message RefundTimePermit {
+ RefundTimeBinding binding = 1; string state = 2;
+ google.protobuf.Timestamp starts_at = 3; google.protobuf.Timestamp qualified_at = 4;
+ int64 version = 5;
+}

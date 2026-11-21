@@ -1,0 +1,1 @@
+DROP INDEX ticket_issuance_receipts_booking_id;

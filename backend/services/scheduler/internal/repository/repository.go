@@ -1,0 +1,25 @@
+package repository
+
+import (
+	"context"
+
+	"github.com/google/uuid"
+	"github.com/ticketbox/pkg/outbound"
+	"github.com/ticketbox/scheduler/internal/domain"
+)
+
+type SchedulerRepository interface {
+	GetById(context.Context, uuid.UUID) (*domain.SchedulerConfig, error)
+	CreateIfAbsent(context.Context, domain.SchedulerConfig) (*domain.SchedulerConfig, bool, error)
+	UpdateByVersion(context.Context, uuid.UUID, int, domain.SchedulerConfig) (*domain.SchedulerConfig, error)
+	ListSchedulersConfig(ctx context.Context) ([]domain.SchedulerConfig, error)
+	UpdateById(ctx context.Context, id uuid.UUID, target domain.SchedulerConfig) (*domain.SchedulerConfig, error)
+}
+
+type OutboundEventRepository interface {
+	GetByID(context.Context, uuid.UUID) (*outbound.OutboundEvent, error)
+	Create(ctx context.Context, outboundEvent outbound.OutboundEvent) error
+	GetListOutboundPending(ctx context.Context, limit, offset int) ([]outbound.OutboundEvent, error)
+	MarkEventAsPublished(ctx context.Context, id uuid.UUID) error
+	MarkEventsAsPublished(ctx context.Context, ids []uuid.UUID) error
+}

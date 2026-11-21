@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: RushGo dashboards
+    orgId: 1
+    folder: RushGo
+    type: file
+    disableDeletion: true
+    editable: false
+    options:
+      path: /var/lib/grafana/dashboards

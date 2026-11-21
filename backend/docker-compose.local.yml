@@ -1,0 +1,47 @@
+services:
+  postgres-user:
+    ports: !override
+      - "15433:5432"
+
+  postgres-event:
+    ports: !override
+      - "15434:5432"
+
+  postgres-booking:
+    ports: !override
+      - "15435:5432"
+
+  postgres-notification:
+    ports: !override
+      - "15436:5432"
+
+  postgres-payment:
+    ports: !override
+      - "15437:5432"
+
+  postgres-saga:
+    ports: !override
+      - "15438:5432"
+
+  postgres-scheduler:
+    ports: !override
+      - "15439:5432"
+
+  event-service:
+    ports:
+      - "15052:50052"
+
+  kafka:
+    ports: !override
+      - "19092:9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:19092
+    healthcheck: !override
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:29092"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  kafka-ui:
+    ports: !override
+      - "18080:8080"

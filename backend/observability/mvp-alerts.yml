@@ -1,0 +1,148 @@
+groups:
+  - name: rushgo-mvp
+    interval: 30s
+    rules:
+      - alert: RushGoFinancialObservationCapped
+        expr: rushgo_booking_payment_observation_capped == 1
+        for: 5m
+        labels:
+          severity: warning
+          owner: operations
+        annotations:
+          summary: "The MVP financial observation reached its bounded page limit"
+          description: "Source: the newest 100 orders in 31 days. Automatic counts do not cover the remaining records; use bounded operations pagination and approve wider monitoring before increasing traffic."
+      - alert: RushGoObservedPaidUnissued
+        expr: (rushgo_booking_observed_paid_unissued > 0) and on(job, instance) (rushgo_booking_payment_observation_available == 1)
+        for: 5m
+        labels:
+          severity: critical
+          owner: ticketing
+        annotations:
+          summary: "Read-only authority checks observed collected payments without full ticket issuance"
+          description: "Source: Booking records plus stored Payment authority; count={{ $value }} among newest 100 orders in 31 days. Check payment_observation_capped and payment_observed_at_seconds. Open operations and the guarded paid-unissued recovery path; preserve the original order/payment. This is a bounded observation, not a complete global count."
+      - alert: RushGoFinancialObservationUnavailable
+        expr: rushgo_booking_payment_observation_available == 0
+        for: 2m
+        labels:
+          severity: warning
+          owner: operations
+        annotations:
+          summary: "The cross-service financial observation is incomplete"
+          description: "Source: bounded Booking/Payment read-only projection. Do not infer zero paid-unissued orders. Inspect service/DB readiness and retry the operations view."
+      - alert: RushGoCriticalServiceObservationMissing
+        expr: absent_over_time(rushgo_database_available{db_service="user-service"}[5m]) or absent_over_time(rushgo_database_available{db_service="event-service"}[5m]) or absent_over_time(rushgo_database_available{db_service="booking-service"}[5m]) or absent_over_time(rushgo_database_available{db_service="payment-service"}[5m]) or absent_over_time(rushgo_database_available{db_service="saga-service"}[5m]) or absent_over_time(rushgo_database_available{db_service="notification-service"}[5m])
+        for: 1m
+        labels:
+          severity: warning
+          owner: operations
+        annotations:
+          summary: "Required service readiness telemetry has been absent for five minutes"
+          description: "Source: missing OTel database readiness series; service={{ $labels.db_service }}. Check whether this service is running and telemetry is enabled. Absence means unknown, not proven downtime or health. Enable this rule only for the complete six-service topology."
+      - alert: RushGoDatabaseUnavailable
+        expr: rushgo_database_available == 0
+        for: 1m
+        labels:
+          severity: critical
+          owner: operations
+        annotations:
+          summary: "A RushGo database readiness probe is failing"
+          description: "Source: a one-second real PG ping in the service telemetry observation; service={{ $labels.db_service }}. Check DB/network/pool health. Missing observations are unknown, never proof of an empty database."
+      - alert: RushGoKafkaPartitionStalled
+        expr: rushgo_kafka_partition_stalled == 1
+        for: 2m
+        labels:
+          severity: critical
+          owner: messaging
+        annotations:
+          summary: "A Kafka consumer partition has stopped at an unresolved record"
+          description: "Source: live consumer partition gauge; topic={{ $labels.topic }}, group={{ $labels.group }}, partition={{ $labels.partition }}. Inspect sanitized handler logs and dependencies. Preserve the uncommitted offset; do not skip records to clear the alert."
+      - alert: RushGoAdmissionPendingStale
+        expr: (rushgo_booking_admission_pending_stale > 0) and on(job, instance) (rushgo_booking_operations_source_available == 1)
+        for: 2m
+        labels:
+          severity: critical
+          owner: ticketing
+        annotations:
+          summary: "Admission claims have remained pending for over five minutes"
+          description: "Source: Booking ticket_admission_intents; bounded count={{ $value }} (10001 means capped). Use admission-fence-inspect and guarded reconciliation, never remove claims or manually permit entry. Observation time: rushgo_booking_operations_observed_at_seconds."
+      - alert: RushGoOutboxDeliveryStale
+        expr: (rushgo_booking_outbox_stale > 0) and on(job, instance) (rushgo_booking_operations_source_available == 1)
+        for: 5m
+        labels:
+          severity: warning
+          owner: messaging
+        annotations:
+          summary: "Booking outbox records have remained unpublished for over five minutes"
+          description: "Source: Booking outbox; count={{ $value }}, capped at 10001. Open outbox inspection and check the original event delivery. Observation time: rushgo_booking_operations_observed_at_seconds."
+      - alert: RushGoOperationsSourceUnavailable
+        expr: rushgo_booking_operations_source_available == 0
+        for: 1m
+        labels:
+          severity: warning
+          owner: operations
+        annotations:
+          summary: "The bounded operations observation failed"
+          description: "Source: Booking observation query. Backlog counts are stale or unknown; inspect DB readiness. Do not report zero incidents based on a failed query."
+      - alert: RushGoNotificationFailures
+        expr: increase(rushgo_notification_processing_failures_total[10m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+          owner: notifications
+        annotations:
+          summary: "Notification processing reported failures"
+          description: "Source: Notification event processing counter over 10m; count={{ $value }}. Inspect the notification exception worklist and SMTP capture/delivery evidence; preserve original notification IDs."
+      - alert: RushGoTelemetryUnavailable
+        expr: up{job="otel-collector"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          owner: operations
+        annotations:
+          summary: "RushGo telemetry scrape is unavailable"
+          description: "Source: Prometheus up; scrape unavailable for 2m. Check collector/network before interpreting missing business metrics as zero. No business action is implied."
+      - alert: RushGoFinancialNeedsAttention
+        expr: rushgo_payment_financial_attention > 0
+        for: 2m
+        labels:
+          severity: critical
+          owner: payments
+        annotations:
+          summary: "Payment financial work requires investigation"
+          description: "Source: persisted Payment worker gauge; count={{ $value }}. Open the bounded operations worklist, preserve original operation keys, inspect evidence. Do not manually repeat a refund or mark unknown as unpaid."
+      - alert: RushGoFinancialWorkStale
+        expr: rushgo_payment_financial_oldest_age_seconds > 900
+        for: 5m
+        labels:
+          severity: warning
+          owner: payments
+        annotations:
+          summary: "Oldest pending financial work exceeds 15 minutes"
+          description: "Source: Payment worker; age={{ $value }} seconds. Inspect worker health, saved attempts and authority availability; approval is not proof of refund completion."
+      - alert: RushGoSagaRecoveryStale
+        expr: rushgo_saga_recovery_oldest_age_seconds > 900
+        for: 5m
+        labels:
+          severity: warning
+          owner: ticketing
+        annotations:
+          summary: "Saga recovery work is delayed"
+          description: "Source: Saga recovery worker; age={{ $value }} seconds. Inspect the original Saga, Payment evidence and Booking receipt to classify the case. Use the guarded recovery flow; never seed tickets or replace the payment identity."
+      - alert: RushGoNotificationDeliveryStale
+        expr: rushgo_notification_delivery_oldest_age_seconds > 600
+        for: 5m
+        labels:
+          severity: warning
+          owner: notifications
+        annotations:
+          summary: "Notification delivery has pending work older than 10 minutes"
+          description: "Source: Notification persisted delivery worker; age={{ $value }} seconds. Inspect the notification exception source and SMTP status. Accepted means SMTP accepted, not customer read; unknown DATA results must not be blindly resent."
+      - alert: RushGoOutboxBacklog
+        expr: rushgo_outbox_pending > 100
+        for: 10m
+        labels:
+          severity: warning
+          owner: messaging
+        annotations:
+          summary: "Outbox backlog remains above the MVP threshold"
+          description: "Source: service outbox gauge; count={{ $value }}. Check Kafka and relay health, then use existing outbox inspection. Preserve original event identities; do not delete pending rows."

@@ -1,0 +1,26 @@
+# Local credentials and service state
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.db
+*.sqlite*
+*.log
+*.bundle
+__pycache__/
+*.pyc
+# Development tooling and generated output
+node_modules/
+.next/
+coverage/
+test-results/
+playwright-report/
+*.tsbuildinfo
+next-env.d.ts
+/backend/bin/
+.vscode/
+.idea/
+.DS_Store

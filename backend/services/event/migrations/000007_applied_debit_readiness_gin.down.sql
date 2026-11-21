@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS booking_seat_lifecycles_applied_debits_gin;

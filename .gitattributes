@@ -1,0 +1,6 @@
+* text=auto eol=lf
+*.ico binary
+*.woff2 binary
+*.png binary
+# Preserve the vendor font license verbatim, including its original spacing.
+frontend/app/fonts/OFL.txt -text -whitespace

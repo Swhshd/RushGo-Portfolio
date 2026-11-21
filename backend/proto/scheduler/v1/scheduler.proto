@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package scheduler.v1;
+
+option go_package = "github.com/ticketbox/pkg/proto/scheduler/v1;schedulerv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+service SchedulerService {
+    rpc ListActiveSchedulers(ListActiveSchedulersRequest) returns (ListActiveSchedulersResponse);
+    rpc UpdateSchedulerById(UpdateSchedulerByIdRequest) returns (google.protobuf.Empty);
+    rpc CreateSchedulerConfig(CreateSchedulerConfigRequest) returns (SchedulerItem);
+}
+
+
+message UpdateSchedulerByIdRequest {
+    string id = 1;
+    bool is_enable = 2;
+    string cron_expression = 3;
+    int32 timeout = 4; // seconds
+    int32 expected_version = 5; // original displayed version; retained across retries
+}
+
+
+
+message ListActiveSchedulersRequest {}
+
+message CreateSchedulerConfigRequest {
+    string name = 1;
+    string job_type = 2;
+    string cron_expression = 3;
+    int32 timeout = 4; // seconds; newly created configs are disabled
+}
+
+
+message ListActiveSchedulersResponse {
+    repeated SchedulerItem schedulers = 1;
+}
+
+message SchedulerItem {
+    string id = 1;
+    string name = 2;
+    string cron_expression = 3;
+    bool is_enabled = 4;
+    int32 version = 5;
+    int32 timeout = 6;
+    google.protobuf.Timestamp created_at = 7;
+    google.protobuf.Timestamp updated_at = 8;
+    string job_type = 9;
+    bool valid = 10;
+    string validation_error = 11;
+}

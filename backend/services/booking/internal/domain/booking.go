@@ -1,0 +1,44 @@
+package domain
+
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
+
+type BookingStatus string
+
+const (
+	StatusPending   BookingStatus = "PENDING"
+	StatusConfirmed BookingStatus = "CONFIRMED"
+	StatusFailed    BookingStatus = "FAILED"
+	StatusCancelled BookingStatus = "CANCELLED"
+	StatusExpired   BookingStatus = "EXPIRED"
+)
+
+type Booking struct {
+	ID                    uuid.UUID
+	UserID                uuid.UUID
+	EventID               uuid.UUID
+	Status                BookingStatus
+	TotalAmountCents      int64
+	Version               int32
+	Items                 []BookingItem
+	CreatedAt             time.Time
+	Managed               bool
+	LifecycleGeneration   int64
+	LifecyclePhase        string
+	RequestID             string
+	Currency, BookingMode string
+	ReservationDeadline   *time.Time
+}
+
+type BookingItem struct {
+	ID             uuid.UUID
+	BookingID      uuid.UUID
+	TicketTierID   uuid.UUID
+	TierName       string
+	Quantity       int32
+	UnitPriceCents int64
+	SeatIDs        []uuid.UUID // Selected seat IDs for this booking item
+}

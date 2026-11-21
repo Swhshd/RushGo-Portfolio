@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package user.v1;
+
+option go_package = "github.com/ticketbox/pkg/proto/user/v1;userv1";
+
+import "google/protobuf/timestamp.proto";
+
+service UserService {
+    rpc Register(RegisterRequest) returns (RegistrationResponse);
+    rpc RequestRegistrationCode(RegistrationCodeRequest) returns (RegistrationCodeResponse);
+    rpc RequestPasswordReset(PasswordResetRequest) returns (PasswordResetResponse);
+    rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
+    rpc Login(LoginRequest) returns (AuthResponse);
+    rpc RefreshToken(RefreshTokenRequest) returns (AuthResponse);
+    rpc Logout(LogoutRequest) returns (LogoutResponse);
+    rpc GetProfile(GetProfileRequest) returns (UserProfile);
+    rpc UpdateProfile(UpdateProfileRequest) returns (UserProfile);
+    rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+    rpc ChangePassword(ChangePasswordRequest) returns (ResetPasswordResponse);
+    rpc RequestEmailChange(EmailChangeRequest) returns (RegistrationCodeResponse);
+    rpc CompleteEmailChange(CompleteEmailChangeRequest) returns (ResetPasswordResponse);
+    // Notification mTLS identity only; minimum recipient data, never credentials.
+    rpc GetNotificationRecipient(GetProfileRequest) returns (NotificationRecipient);
+}
+
+message RegisterRequest {
+    string email = 1;
+    string password = 2;
+    string name = 3;
+    string verification_id = 4;
+    string verification_code = 5;
+}
+
+message RegistrationResponse { bool account_created = 1; string message = 2; }
+message RegistrationCodeRequest { string email = 1; }
+message RegistrationCodeResponse {
+    string verification_id = 1;
+    google.protobuf.Timestamp expires_at = 2;
+    google.protobuf.Timestamp next_resend_at = 3;
+    string message = 4;
+}
+message PasswordResetRequest { string email = 1; }
+message PasswordResetResponse { string message = 1; }
+message ResetPasswordRequest { string token = 1; string new_password = 2; }
+message ResetPasswordResponse { string message = 1; }
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message AuthResponse {
+    string access_token = 1;
+    string refresh_token = 2;
+    UserProfile user = 3;
+}
+
+message RefreshTokenRequest {
+    string refresh_token = 1;
+}
+
+message LogoutRequest {
+    string access_token = 1;
+    string refresh_token = 2;
+}
+
+message LogoutResponse {}
+
+message GetProfileRequest {
+    string user_id = 1;
+}
+
+message UpdateProfileRequest {
+    string user_id = 1;
+    string name = 2;
+    string email = 3;
+    string locale = 4;
+}
+
+message UserProfile {
+    string id = 1;
+    string email = 2;
+    string name = 3;
+    string role = 4;
+    google.protobuf.Timestamp created_at = 5;
+    string locale = 6;
+}
+
+message ChangePasswordRequest { string user_id=1; string current_password=2; string new_password=3; }
+message EmailChangeRequest { string user_id=1; string current_password=2; string email=3; }
+message CompleteEmailChangeRequest { string user_id=1; string current_password=2; string verification_id=3; string verification_code=4; }
+message NotificationRecipient { string user_id=1; string email=2; string locale=3; bool email_verified=4; }
+
+message ValidateTokenRequest {
+    string access_token = 1;
+    bool require_current_role = 2;
+}
+
+message ValidateTokenResponse {
+    bool valid = 1;
+    string user_id = 2;
+    string email = 3;
+    string role = 4;
+    bool current_role_verified = 5;
+}
