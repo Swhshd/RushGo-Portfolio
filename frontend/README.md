@@ -1,5 +1,7 @@
 # RushGo 前端开发
 
+[简体中文](README.md) | [English](README.en.md)
+
 前端使用 Next.js App Router。只想看界面，可以直接运行[只读发现页或多页面预览](../DEMO.md)；调试真实 API 前，按[后端指南](../backend/README.md)准备 Gateway 和依赖服务。
 
 ## 开发服务器

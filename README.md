@@ -1,5 +1,7 @@
 # RushGo
 
+[简体中文](README.md) | [English](README.en.md)
+
 RushGo 是一个基于 Go 和 Next.js 的微服务票务系统。观众可以查询活动、选择座位并查看订单和票据，现场工作人员按活动授权核销票据，管理员维护活动并查询售票和售后记录。系统围绕一个具体问题组织订单流程：当两位观众同时选中一个座位，或支付结果晚于预订期限到达时，谁有权确认订单、占用座位和签发票据？
 
 RushGo 是我独立维护的个人作品集项目。想先看界面，可以浏览[页面图册](docs/SCREENSHOTS.md)，也可以运行下方的只读发现页演示。想了解购票实现，可以从订单流程和对应服务入口读起。[演示指南](DEMO.md) · [项目状态](PROJECT_STATUS.md)
@@ -61,7 +63,7 @@ npm run dev -- --hostname 127.0.0.1 --port 3000
 
 ## 架构与服务职责
 
-下图说明当前本地 Compose 配置与 Go 入口之间的协议、资源归属和主要事件流。节点中以“库”结尾的名称表示该服务读写的独立 PostgreSQL 数据库。虚线表示异步消息。
+下图说明当前本地 Compose 配置与 Go 入口之间的协议、资源归属和主要事件流。节点中以“库”结尾的名称表示该服务读写的独立 PostgreSQL 数据库。服务协作包含同步 gRPC 调用与由 Kafka 承载的事件驱动异步消息。虚线表示异步消息。
 
 ```mermaid
 flowchart TB
@@ -201,6 +203,8 @@ sequenceDiagram
 | [架构专题](docs/ARCHITECTURE.md) · [页面图册](docs/SCREENSHOTS.md) | 补偿、消息幂等与实时座位恢复；按角色查页面和样例截图 |
 | [演示指南](DEMO.md) · [项目状态](PROJECT_STATUS.md) | 演示步骤、预期结果及各层验证范围 |
 | [后端开发说明](backend/README.md) · [前端开发说明](frontend/README.md) | 完整后端所需数据库、消息服务、证书和配置，以及前端开发检查 |
+
+本项目提供简体中文和英文文档。修改文档时，请同步更新两个版本，并运行 `node docs/check-docs.mjs` 检查链接。[文档校验脚本](docs/check-docs.mjs)
 
 ## 当前状态与许可
 

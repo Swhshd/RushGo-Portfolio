@@ -1,5 +1,7 @@
 # RushGo 后端开发
 
+[简体中文](README.md) | [English](README.en.md)
+
 后端工作区包含 Gateway、User、Event、Booking、Payment、Saga、Notification 和 Scheduler 八个 Go 服务，以及共用的 gRPC 协议与基础组件。此文档介绍本地开发栈的依赖、初始化顺序和当前尚需本机配置的项目。[项目概览](../README.md) · [前端开发](../frontend/README.md) · [只读演示](../DEMO.md) · [项目状态](../PROJECT_STATUS.md)
 
 ## 依赖与配置

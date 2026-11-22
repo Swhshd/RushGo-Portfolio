@@ -1,6 +1,8 @@
 # RushGo 架构专题
 
-[README 的服务拓扑图](../README.md#架构与服务职责)展示当前本地服务、协议和数据资源归属；[正常订单到出票图](../README.md#一笔订单如何走到出票)展示支付唤醒及异步出票。本页补充三条各自独立的恢复和实时数据链路。
+[简体中文](ARCHITECTURE.md) | [English](ARCHITECTURE.en.md)
+
+[README 的服务拓扑图](../README.md#架构与服务职责)展示当前本地服务、协议和数据资源归属；[正常订单到出票图](../README.md#一笔订单如何走到出票)展示支付唤醒及异步出票。本页补充三条各自独立的恢复和实时数据链路。这些流程结合了同步 gRPC 调用与 Kafka 事件驱动异步消息。
 
 ## 关闭与补偿
 
@@ -24,7 +26,7 @@ flowchart TD
     E0 --> DONE["Saga 标记 ROLLED_BACK<br/>全部补偿完成后"]
 ```
 
-- Booking 用带版本的生命周期 CAS 决定终态，并在自己的数据库中排入 `settle` 派发；Saga 先重读 Booking，只有获胜的终态且订单未确认时才推进补偿。[Booking 生命周期更新](../backend/services/booking/internal/repository/postgres_lifecycle_repository.go) · [Booking 派发](../backend/services/booking/internal/service/dispatch_worker.go) · [Saga 终态核对](../backend/services/saga/internal/service/replay_effects.go)
+- Booking 用带版本的生命周期 CAS（乐观并发控制）决定终态，并在自己的数据库中排入 `settle` 派发；Saga 先重读 Booking，只有获胜的终态且订单未确认时才推进补偿。[Booking 生命周期更新](../backend/services/booking/internal/repository/postgres_lifecycle_repository.go) · [Booking 派发](../backend/services/booking/internal/service/dispatch_worker.go) · [Saga 终态核对](../backend/services/saga/internal/service/replay_effects.go)
 - Saga 在自己的数据库中保存方向、步骤结果和操作义务；每次调用外部服务前写入执行意图，调用结果再以认领令牌与 fencing 状态提交。补偿按步骤逆序恢复。[Saga 执行器](../backend/services/saga/internal/service/replay_executor.go) · [Saga 补偿状态](../backend/services/saga/internal/repository/postgres_saga_settlement.go)
 - Event 拥有座位状态和库存记账：补偿 S2/S0 时，Saga 用稳定操作身份请求 Event `close`；S3 由 Booking 的终态 CAS 负责，S4 的销售记账回冲归 Event 的座位关闭路径。[补偿步骤](../backend/services/saga/internal/service/replay_effects.go) · [Event 座位生命周期](../backend/services/event/internal/repository/postgres_seat_lifecycle_repository.go)
 - Payment 拥有 provider outcome、取消和退款事实。Saga 的 `RequestPaymentResolution` 带上 Booking 的 `decision_id`；已收款路径只在全额退款状态为 `succeeded` 后完成，未收款路径只在 provider outcome 为 `not_collected` 且 reconciliation 为 `resolved` 后完成。[Payment 解析服务](../backend/services/payment/internal/service/payment_service.go) · [Payment gRPC](../backend/services/payment/internal/grpc/server.go)

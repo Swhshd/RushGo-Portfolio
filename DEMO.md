@@ -1,5 +1,7 @@
 # RushGo 本地演示
 
+[简体中文](DEMO.md) | [English](DEMO.en.md)
+
 模式 A 适合直接在自己的浏览器里试搜索与分类。模式 B 适合查看购票、工作人员及管理页面，或重建页面图册。两种演示都使用真实 Next.js 页面和本地样例，无需 Docker、Go、账户或支付密钥。要把前端接到完整业务服务，请按[后端开发指南](backend/README.md)和[前端配置](frontend/README.md)操作。
 
 ## 启动只读发现页
@@ -74,10 +76,11 @@ node .\docs\demo\capture-gallery.mjs --preview '/admin/events'
 
 ```powershell
 node .\docs\demo\capture-gallery.mjs
+node .\docs\check-docs.mjs --fix-gallery-nav
 Remove-Item Env:NEXT_PUBLIC_API_URL -ErrorAction SilentlyContinue
 ```
 
-如果只查看预览，关窗后同样可以执行最后一行清除变量。`--preview` 接受图册里的路由模板。浏览器拦截外部请求和业务写入；结账恢复接口只在浏览器内返回固定订单快照，选座页使用本机 SSE 就绪事件。预览不提交登录、核销或审批，不执行真实交易，不发送邮件。[生成脚本](docs/demo/capture-gallery.mjs) · [验证范围](PROJECT_STATUS.md)
+如果只查看预览，关窗后同样可以执行最后一行清除变量。`--preview` 接受图册里的路由模板。生成截图后，可运行 `node .\docs\check-docs.mjs --fix-gallery-nav` 补回顶部双语导航并校验文档；它不会覆盖人工翻译。浏览器拦截外部请求和业务写入；结账恢复接口只在浏览器内返回固定订单快照，选座页使用本机 SSE 就绪事件。预览不提交登录、核销或审批，不执行真实交易，不发送邮件。[生成脚本](docs/demo/capture-gallery.mjs) · [验证范围](PROJECT_STATUS.md)
 
 ## 常见问题
 
