@@ -32,10 +32,4 @@ npm run dev -- --hostname 127.0.0.1 --port 3000
 
 ![本机活动发现页显示三个虚构活动](docs/demo/screenshots/discover-page.png)
 
-## 开发内容与来源
-
-原始项目提供了票务应用、票档锁定、支付 Saga、Kafka 传输和超时清理。本项目在此基础上迭代了座位归属校验、热点准入、订单 outbox、实时座位同步、票据凭证、售后和管理视图。仓库保留内部 `github.com/ticketbox/*` 模块标识，以维持工作区和生成代码的引用关系。上游版本见 [hoangdaochuz/booking](https://github.com/hoangdaochuz/booking/tree/9c9d6548fa7a24d056c103adc495ecb3d08c9b3f)。
-
-上游 README 将用途描述为教育和演示。当前仍需确认整体应用的再分发许可。迁移脚本目录中的 MIT 声明和 Geist 字体的 SIL Open Font License 分别适用于相应材料。[脚本许可](backend/scripts/LICENSE) · [字体许可](frontend/app/fonts/OFL.txt)
-
 T23、T24、W28 及 72 窗口可靠性验收均已移出本次展示范围，其历史未完成状态保留。
