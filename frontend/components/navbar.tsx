@@ -63,7 +63,7 @@ export function Navbar() {
     <nav aria-label={t("customer.navigation.main")} className="flex flex-wrap items-center gap-x-6 gap-y-3 min-h-16 px-5 py-3 md:px-12 bg-card text-foreground border-b border-border w-full shrink-0">
         {logoutError && <p role="status" className="w-full text-sm text-danger-ink">{t("customer.navigation.logoutError")}</p>}
         <Link href="/" className="order-1 text-primary font-extrabold text-xl font-mono tracking-wide">
-          RUSHGO
+          RushGo
         </Link>
         <div className="order-3 xl:order-2 flex w-full sm:w-auto items-center justify-between sm:justify-start gap-4 md:gap-6">
           {discoveryCategories.map((link) => (

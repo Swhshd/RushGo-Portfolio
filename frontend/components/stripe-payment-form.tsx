@@ -86,9 +86,6 @@ function PaymentForm({ clientSecret, amount, onSuccess, onError, disabled }: Str
       result = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: cardElement,
-          billing_details: {
-            name: "TicketBox Customer",
-          },
         },
       });
     } catch {

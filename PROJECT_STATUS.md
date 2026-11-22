@@ -1,12 +1,12 @@
-# 项目状态
+# RushGo 项目状态
 
 公开演示覆盖活动发现页。下面分别列出代码入口、已有的验证记录，以及仍需多服务联机验证的部分。[项目概览](README.md) · [复现演示](DEMO.md)
 
 | 验证层次 | 已有依据 | 范围 |
 | --- | --- | --- |
 | 代码实现 | [Gateway 路由](backend/services/gateway/internal/router/router.go)、[服务目录](backend/services)、[前端页面](frontend/app) | 可沿路由追踪账户、活动、订单、支付、票据、售后、通知与管理查询。 |
-| 单元测试 | 已有验证记录覆盖 User 的服务和 gRPC 逻辑、Event 的预留座位与记账资格判断、Booking 的售卖资格、请求重放和出票资格。本次另运行了[发现页定向测试](frontend/tests/discovery.test.mjs)。 | 单测中的内存仓储、模拟服务和样例数据仅验证相应条件与分支。 |
-| 构建 | [后端说明](backend/README.md)和[前端说明](frontend/README.md)给出构建入口。本次复核由 Next.js 开发服务器实际编译并加载发现页。 | 此次未重跑全量 Go 模块构建或前端生产构建。 |
+| 单元测试 | 已有验证记录覆盖 User 的服务和 gRPC 逻辑、Event 的预留座位与记账资格判断、Booking 的售卖资格、请求重放和出票资格。已运行发现页、活动插图、管理导航、双语文案和结账状态的定向测试，其中结账测试使用模拟 Stripe 客户端。[发现页测试](frontend/tests/discovery.test.mjs) · [结账测试](frontend/tests/checkout-payment-state.test.mjs) | 单测中的内存仓储、模拟服务和样例数据仅验证相应条件与分支。 |
+| 构建 | [后端说明](backend/README.md)和[前端说明](frontend/README.md)给出构建入口。前端生产构建及其中的 TypeScript 检查已通过。 | 此次构建覆盖前端，Go 全量构建未重跑。 |
 | 本地页面 | 浏览器通过 Next.js 读取[样例 API](docs/demo/events-api.mjs)，显示三个活动，搜索和分类均可复现。 | 仅覆盖发现页和只读查询，样例库存为零。 |
 | 完整业务 E2E | 尚未在当前公开版本完成从注册、支付到出票和核销的整链路验收。 | Stripe TEST 回调、退款最终状态、真实邮件送达和多服务恢复均不能从页面演示推断。 |
 | 高级验收 | T23、T24、W28 及 72 窗口可靠性验收已停止推进。历史失败和未执行记录保留在离线归档。 | 已移出本次发布范围，验收仍未完成。 |

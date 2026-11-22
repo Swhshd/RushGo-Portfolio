@@ -22,7 +22,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: commonEn["common.metadata.title"],
-  description: "An event ticketing project with event discovery, seat selection, and order workflows.",
+  description: "Discover events, select seats, and manage ticket orders with RushGo.",
   icons: { icon: "data:," },
 };
 

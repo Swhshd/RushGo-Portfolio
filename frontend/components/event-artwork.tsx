@@ -48,7 +48,7 @@ function ArtworkSource({ src, title, category, className = "", compact = false }
           <div aria-hidden="true" className={`flex flex-col items-center ${compact ? "gap-1" : "gap-3"}`}>
             <Ticket size={compact ? 20 : 32} className="text-primary/70" strokeWidth={1.5} />
             <span className={`font-mono font-semibold tracking-widest ${compact ? "text-[10px]" : "text-sm"}`}>
-              {compact ? initials : "RUSHGO"}
+              {compact ? initials : "RushGo"}
             </span>
             {!compact && <span className="text-xs text-muted-on-dark">{categoryLabel}</span>}
           </div>

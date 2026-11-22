@@ -13,4 +13,6 @@ npx tsc --noEmit
 npm run build
 ```
 
-The checkout interface is not proof of a completed purchase. A real purchase requires the backend booking and payment services and is outside the local interface walkthrough.
+## Checkout and billing
+
+The RushGo checkout passes the card element to Stripe. It omits the optional payer name because the form does not collect one. For card statements, the Payment service uses the Stripe account's configured descriptor. The local discovery demo makes no payment requests. [Stripe statement descriptor rules](https://docs.stripe.com/get-started/account/statement-descriptors)

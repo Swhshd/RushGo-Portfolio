@@ -66,5 +66,5 @@ test("admin forbidden shell copy follows locale and interpolates the account det
   const html = renderToStaticMarkup(React.createElement(AdminLayout, null, React.createElement("div", null, "Admin content")));
   assert.match(html, /403 — 仅限管理员/);
   assert.match(html, /staff@example\.test（staff）/);
-  assert.match(html, /返回 RUSHGO/);
+  assert.match(html, /返回 RushGo/);
 });

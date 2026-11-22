@@ -88,7 +88,7 @@ export default function AdminLayout({
           </div>
           <div>
             <div className="font-mono font-bold tracking-tight text-[15px]">
-              RUSHGO
+              RushGo
             </div>
             <div className="text-[11px] text-muted">{t("admin.layout.internalOpsConsole")}</div>
           </div>

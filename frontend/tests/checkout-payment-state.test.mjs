@@ -68,12 +68,18 @@ function paymentForm(confirmCardPayment, onSuccess = () => {}, onError = () => {
 
 test("a successful card confirmation replaces Processing with a paid, non-retryable state", async () => {
   let succeeded = 0;
-  const form = paymentForm(async () => ({ paymentIntent: { id: "pi_fixture", status: "succeeded" } }), () => succeeded++);
+  let confirmation;
+  const form = paymentForm(async (_clientSecret, params) => {
+    confirmation = params;
+    return { paymentIntent: { id: "pi_fixture", status: "succeeded" } };
+  }, () => succeeded++);
   assert.match(JSON.stringify(form.button().props.children), /Pay \$25\.00/);
 
   await form.submit();
 
   const button = form.button();
+  assert.ok(confirmation.payment_method.card);
+  assert.equal(confirmation.payment_method.billing_details?.name, undefined);
   assert.equal(succeeded, 1);
   assert.equal(button.props.disabled, true);
   assert.match(JSON.stringify(button.props.children), /Payment received/);
