@@ -4,6 +4,33 @@ RushGo 是一个基于 Go 和 Next.js 的微服务票务系统。观众可以查
 
 RushGo 是我独立维护的个人作品集项目。想先看界面，可以浏览[页面图册](docs/SCREENSHOTS.md)，也可以运行下方的只读发现页演示。想了解购票实现，可以从订单流程和对应服务入口读起。[演示指南](DEMO.md) · [项目状态](PROJECT_STATUS.md)
 
+## 如何启动
+
+| 想做什么 | 选哪种模式 | 需要什么 |
+| --- | --- | --- |
+| 打开首页，试搜索和分类 | A · [只读发现页](DEMO.md#启动只读发现页) | 两个 PowerShell 窗口、Node.js 和 npm |
+| 查看选座或管理页，或重新生成图册 | B · [多页面预览与截图](DEMO.md#多页面预览与截图) | 前端生产构建、Playwright 和 Chromium 或 Edge；页面读取本地合成样例 |
+| 开发和调试完整服务 | C · [后端开发环境](backend/README.md) | Docker Compose、七个数据库、迁移、应用角色和私有 mTLS 材料；前端连接 Gateway |
+
+**第一次打开项目，推荐模式 A。** 在仓库根目录打开两个 PowerShell 窗口。实测使用 Node.js 24.11.1、npm 11.7.0。此模式无需 Go、Docker 或支付密钥。
+
+窗口一启动三个虚构活动的只读 API。
+
+```powershell
+node .\docs\demo\events-api.mjs
+```
+
+窗口二启动网页。
+
+```powershell
+cd frontend
+npm ci
+$env:NEXT_PUBLIC_API_URL = "http://127.0.0.1:8765"
+npm run dev -- --hostname 127.0.0.1 --port 3000
+```
+
+打开 <http://127.0.0.1:3000/>，搜索 `Harbor` 可看到 **Harbor Jazz Weekend**。结束时在两个窗口分别按 `Ctrl+C`，然后在窗口二执行 `Remove-Item Env:NEXT_PUBLIC_API_URL -ErrorAction SilentlyContinue`。[HTTP 检查与常见问题](DEMO.md#在发现页试一遍) · [前端开发说明](frontend/README.md)
+
 ## 功能模块
 
 | 模块 | 当前实现 |
@@ -164,27 +191,6 @@ sequenceDiagram
 <tr><td><a href="docs/demo/screenshots/customer/customer-ticket-wallet.png"><img src="docs/demo/screenshots/customer/customer-ticket-wallet.png" width="400" alt="RushGo 我的票券 · 持票与订单"></a><br>我的票券 · 持票与订单</td><td><a href="docs/demo/screenshots/admin/admin-events.png"><img src="docs/demo/screenshots/admin/admin-events.png" width="400" alt="RushGo 管理员 · 活动管理"></a><br>管理员 · 活动管理</td></tr>
 <tr><td><a href="docs/demo/screenshots/admin/admin-order-detail.png"><img src="docs/demo/screenshots/admin/admin-order-detail.png" width="400" alt="RushGo 管理员 · 订单与售后详情"></a><br>管理员 · 订单与售后详情</td><td><a href="docs/demo/screenshots/admin/admin-outbox.png"><img src="docs/demo/screenshots/admin/admin-outbox.png" width="400" alt="RushGo 管理员 · 发件箱事件"></a><br>管理员 · 发件箱事件</td></tr>
 </table>
-
-## 本地演示 · 活动发现页
-
-准备 Node.js 和 npm（本地复核使用 Node.js 24）。这个入口只运行 Next.js 和只读样例 API，无需账户、支付密钥或后端容器。
-
-在仓库根目录打开两个 PowerShell 窗口。在第一个窗口启动样例 API。
-
-```powershell
-node .\docs\demo\events-api.mjs
-```
-
-在第二个窗口安装锁定版本的前端依赖，将 API 指向样例服务，然后启动 Next.js。
-
-```powershell
-cd frontend
-npm ci
-$env:NEXT_PUBLIC_API_URL = "http://127.0.0.1:8765"
-npm run dev -- --hostname 127.0.0.1 --port 3000
-```
-
-打开 <http://127.0.0.1:3000/>。搜索 `Harbor` 可看到一场爵士乐活动，清空搜索后选择 `Sports` 可看到一场体育活动。这套轻量演示包含三场虚构活动，票档库存为零。[查看发现页截图与操作说明](DEMO.md#在发现页试一遍)
 
 ## 目录与文档
 
