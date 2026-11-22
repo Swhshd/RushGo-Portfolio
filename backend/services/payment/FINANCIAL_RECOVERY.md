@@ -61,4 +61,4 @@ COMMIT;
 Metrics use no Booking/Payment/provider IDs: `rushgo.payment.financial.due`,
 `attention`, `oldest_age` (seconds), and `attempts` (operation only). Backlog age
 includes blocked financial work. A failed summary query is an error, never zero
-backlog. External Stripe TEST crash/restart acceptance is recorded in T22.
+backlog. See [project status](../../../PROJECT_STATUS.md) for the scope of payment and recovery verification.
