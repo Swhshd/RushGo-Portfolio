@@ -1,0 +1,646 @@
+[
+  {
+    "route": "/",
+    "exampleUrl": "/",
+    "pageSource": "frontend/app/(customer)/page.tsx",
+    "title": "活动发现",
+    "role": "guest",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/customer/customer-discover.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      {
+        "file": "docs/demo/screenshots/mobile/customer-discover.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        }
+      }
+    ]
+  },
+  {
+    "route": "/events/[id]",
+    "exampleUrl": "/events/00000000-0000-4000-8000-000000000001",
+    "pageSource": "frontend/app/(customer)/events/[id]/page.tsx",
+    "title": "活动详情",
+    "role": "guest",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/customer/customer-event-detail.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      {
+        "file": "docs/demo/screenshots/mobile/customer-event-detail.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        }
+      }
+    ]
+  },
+  {
+    "route": "/events/[id]/seats",
+    "exampleUrl": "/events/00000000-0000-4000-8000-000000000001/seats",
+    "pageSource": "frontend/app/(customer)/events/[id]/seats/page.tsx",
+    "title": "在线选座",
+    "role": "buyer",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/customer/customer-seat-selection.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/checkout",
+    "exampleUrl": "/checkout?booking_id=00000000-0000-4000-8000-000000000012",
+    "pageSource": "frontend/app/(customer)/checkout/page.tsx",
+    "title": "继续现有订单",
+    "role": "buyer",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/customer/customer-checkout-status.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/login",
+    "exampleUrl": "/login?redirect=%2Fmy-tickets",
+    "pageSource": "frontend/app/(customer)/login/page.tsx",
+    "title": "登录",
+    "role": "guest",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "form",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/customer/customer-login.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/register",
+    "exampleUrl": "/register",
+    "pageSource": "frontend/app/(customer)/register/page.tsx",
+    "title": "创建账号",
+    "role": "guest",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "form",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/customer/customer-register.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/forgot-password",
+    "exampleUrl": "/forgot-password",
+    "pageSource": "frontend/app/(customer)/forgot-password/page.tsx",
+    "title": "忘记密码",
+    "role": "guest",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "form",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/customer/customer-forgot-password.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/reset-password",
+    "exampleUrl": "/reset-password",
+    "pageSource": "frontend/app/(customer)/reset-password/page.tsx",
+    "title": "重置密码",
+    "role": "guest",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "form",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/customer/customer-reset-password.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/account",
+    "exampleUrl": "/account",
+    "pageSource": "frontend/app/(customer)/account/page.tsx",
+    "title": "账户设置",
+    "role": "buyer",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/customer/customer-account.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/aftersales",
+    "exampleUrl": "/aftersales",
+    "pageSource": "frontend/app/(customer)/aftersales/page.tsx",
+    "title": "售后服务",
+    "role": "buyer",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "form",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/customer/customer-aftersales.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/favorites",
+    "exampleUrl": "/favorites",
+    "pageSource": "frontend/app/(customer)/favorites/page.tsx",
+    "title": "收藏与提醒",
+    "role": "buyer",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/customer/customer-favorites.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/my-tickets",
+    "exampleUrl": "/my-tickets",
+    "entryUrl": "/",
+    "pageSource": "frontend/app/(customer)/my-tickets/page.tsx",
+    "title": "我的票券",
+    "role": "buyer",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/customer/customer-ticket-wallet.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      {
+        "file": "docs/demo/screenshots/mobile/customer-ticket-wallet.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        }
+      }
+    ]
+  },
+  {
+    "route": "/my-tickets/orders/[id]",
+    "exampleUrl": "/my-tickets/orders/00000000-0000-4000-8000-000000000004",
+    "pageSource": "frontend/app/(customer)/my-tickets/orders/[id]/page.tsx",
+    "title": "订单详情",
+    "role": "buyer",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/customer/customer-order-detail.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/notifications",
+    "exampleUrl": "/notifications",
+    "pageSource": "frontend/app/(customer)/notifications/page.tsx",
+    "title": "消息",
+    "role": "buyer",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/customer/customer-notifications.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/work",
+    "exampleUrl": "/work",
+    "pageSource": "frontend/app/(customer)/work/page.tsx",
+    "title": "我的工作",
+    "role": "staff",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/customer/customer-staff-work.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/events/[id]/check-in",
+    "exampleUrl": "/events/00000000-0000-4000-8000-000000000001/check-in",
+    "entryUrl": "/work",
+    "pageSource": "frontend/app/(customer)/events/[id]/check-in/page.tsx",
+    "title": "票券核销",
+    "role": "staff",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "form",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/customer/customer-staff-check-in.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/admin",
+    "exampleUrl": "/admin",
+    "pageSource": "frontend/app/admin/page.tsx",
+    "title": "总览",
+    "role": "admin",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/admin/admin-overview.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/admin/events",
+    "exampleUrl": "/admin/events",
+    "pageSource": "frontend/app/admin/events/page.tsx",
+    "title": "活动",
+    "role": "admin",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/admin/admin-events.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/admin/events/[id]/refunds",
+    "exampleUrl": "/admin/events/00000000-0000-4000-8000-000000000001/refunds",
+    "pageSource": "frontend/app/admin/events/[id]/refunds/page.tsx",
+    "title": "活动退款审批",
+    "role": "admin",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/admin/admin-event-refunds.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/admin/events/[id]/operations",
+    "exampleUrl": "/admin/events/00000000-0000-4000-8000-000000000001/operations",
+    "pageSource": "frontend/app/admin/events/[id]/operations/page.tsx",
+    "title": "活动运营",
+    "role": "admin",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/admin/admin-event-operations.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/admin/orders",
+    "exampleUrl": "/admin/orders",
+    "pageSource": "frontend/app/admin/orders/page.tsx",
+    "title": "查询订单",
+    "role": "admin",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/admin/admin-order-lookup.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/admin/orders/[id]",
+    "exampleUrl": "/admin/orders/00000000-0000-4000-8000-000000000004",
+    "pageSource": "frontend/app/admin/orders/[id]/page.tsx",
+    "title": "订单与售后详情",
+    "role": "admin",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/admin/admin-order-detail.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/admin/operations",
+    "exampleUrl": "/admin/operations",
+    "pageSource": "frontend/app/admin/operations/page.tsx",
+    "title": "异常与退款",
+    "role": "admin",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/admin/admin-exceptions-refunds.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/admin/outbox",
+    "exampleUrl": "/admin/outbox?source=notification",
+    "pageSource": "frontend/app/admin/outbox/page.tsx",
+    "title": "发件箱事件",
+    "role": "admin",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/admin/admin-outbox.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/admin/ops",
+    "exampleUrl": "/admin/ops",
+    "pageSource": "frontend/app/admin/ops/page.tsx",
+    "title": "定时任务",
+    "role": "admin",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/admin/admin-scheduler-jobs.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/admin/flags",
+    "exampleUrl": "/admin/flags",
+    "pageSource": "frontend/app/admin/flags/page.tsx",
+    "title": "功能开关",
+    "role": "admin",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/admin/admin-feature-flags.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  },
+  {
+    "route": "/admin/metrics",
+    "exampleUrl": "/admin/metrics",
+    "pageSource": "frontend/app/admin/metrics/page.tsx",
+    "title": "运营指标",
+    "role": "admin",
+    "locale": "zh-CN",
+    "timezone": "Asia/Shanghai",
+    "deviceScaleFactor": 1,
+    "dataSource": "fixture",
+    "frontendRevision": "39330b420464f51f5feef9e53a6d841154f20f5a",
+    "generator": "docs/demo/capture-gallery.mjs",
+    "status": "captured",
+    "screenshots": [
+      {
+        "file": "docs/demo/screenshots/admin/admin-metrics.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
+  }
+]
