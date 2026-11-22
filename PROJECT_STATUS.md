@@ -1,21 +1,22 @@
 # 项目状态
 
-本地快照取自已提交的产品基线 `0dc872f79f437a3c6e48ac21b1d2f44dc5bafb66`。参与展示的路径和操作以 [演示记录](DEMO.md) 为准。下表中的前端入口是浏览器路由，后端实现位于 `backend/services/` 或注明的共享包。
+公开演示覆盖活动发现页。下面分别列出代码入口、已有的验证记录，以及仍需多服务联机验证的部分。[项目概览](README.md) · [复现演示](DEMO.md)
 
-| 模块 | 实现入口 | 前端入口 | 验证依据、限制与本轮处置 | 状态 |
-|---|---|---|---|---|
-| 账户与角色 | `gateway/internal/handler/auth_handler.go`、`user` | `/register`、`/login`、`/account` | User 的 service 和 gRPC 包单测通过；真实收件和用户登录未联机验收 | IMPLEMENTED_NOT_DEMO_VERIFIED |
-| 活动发现页面 | `frontend/lib/discovery.ts`、`docs/demo/events-api.mjs` | `/` | 本机浏览器显示三个只读虚构活动；操作与截图见 DEMO.md | IMPLEMENTED_AND_DEMO_VERIFIED |
-| 活动查询服务与详情 | `gateway/internal/handler/event_handler.go`、`event/internal/repository` | `/events/[id]` | 保留查询与详情接口；Go 查询服务和详情页未联机验收 | IMPLEMENTED_NOT_DEMO_VERIFIED |
-| 活动管理 | `gateway/internal/handler/management_handler.go`、`event` | `/admin/events` | 保留创建、编辑等受权限控制的入口；管理员操作未做联机演示 | IMPLEMENTED_NOT_DEMO_VERIFIED |
-| 票档、座位与库存 | `event/internal/repository`、`pkg/admission`（共享包） | `/events/[id]/seats` | Event 对已预订座位及库存记账的资格判定单测通过；本轮未运行多人并发选座 | IMPLEMENTED_NOT_DEMO_VERIFIED |
-| 预订与订单 | `booking/internal/service/booking_service.go`、`gateway/internal/handler/booking_handler.go` | `/checkout`、`/my-tickets/orders/[id]` | Booking 售卖资格和请求重放的内存测试通过；未联机创建订单 | IMPLEMENTED_NOT_DEMO_VERIFIED |
-| 支付与编排 | `payment/internal/gateway/stripe`、`saga/internal/service/service.go` | `/checkout` | 保留支付与补偿逻辑，本轮无外部支付调用，完整购票未验证 | IMPLEMENTED_NOT_DEMO_VERIFIED |
-| 钱包、票据与核销 | `booking/internal/service/ticket_issuance.go`、`gateway/internal/handler/ticket_handler.go` | `/my-tickets`、`/events/[id]/check-in` | Booking 出票前对 Event、Payment、Saga 的资格核对测试通过；真实出票和扫码仍待联机验证 | IMPLEMENTED_NOT_DEMO_VERIFIED |
-| 售后 | `booking/internal/service/unused_ticket_refund.go`、`gateway/internal/handler/booking_refund_handler.go` | `/aftersales`、`/admin/events/[id]/refunds` | 保留未使用票的退款申请与审批路径；未触发实际退款 | IMPLEMENTED_NOT_DEMO_VERIFIED |
-| 通知 | `notification/internal/kafka/consumer.go`、`notification/internal/service` | `/notifications` | 保留收件箱、投递和重试代码；真实 SMTP 送达未验证 | IMPLEMENTED_NOT_DEMO_VERIFIED |
-| 管理查询 | `gateway/internal/handler/admin_booking_detail_handler.go`、`admin_outbox_handler.go` | `/admin/orders`、`/admin/outbox` | 保留受权限保护的订单和 outbox 读取；未登录管理员演示 | IMPLEMENTED_NOT_DEMO_VERIFIED |
-| 事务与基础设施 | `booking/internal/service/outbox_relay.go`、`scheduler`、共享包 `backend/pkg/{kafka,redis,grpcsecurity}` | 经上述业务页面间接使用 | 保留数据库迁移、消息处理和 mTLS 身份逻辑；多服务拓扑未联机验收 | IMPLEMENTED_NOT_DEMO_VERIFIED |
-| T23/T24、W28 和 72 个窗口 | 历史验收工具保存在离线档案 | 无 | 停止继续推进，保留原始失败及未执行记录 | OUT_OF_RELEASE_SCOPE |
+| 验证层次 | 已有依据 | 范围 |
+| --- | --- | --- |
+| 代码实现 | [Gateway 路由](backend/services/gateway/internal/router/router.go)、[服务目录](backend/services)、[前端页面](frontend/app) | 可沿路由追踪账户、活动、订单、支付、票据、售后、通知与管理查询。 |
+| 单元测试 | 已有验证记录覆盖 User 的服务和 gRPC 逻辑、Event 的预留座位与记账资格判断、Booking 的售卖资格、请求重放和出票资格。本次另运行了[发现页定向测试](frontend/tests/discovery.test.mjs)。 | 单测中的内存仓储、模拟服务和样例数据仅验证相应条件与分支。 |
+| 构建 | [后端说明](backend/README.md)和[前端说明](frontend/README.md)给出构建入口。本次复核由 Next.js 开发服务器实际编译并加载发现页。 | 此次未重跑全量 Go 模块构建或前端生产构建。 |
+| 本地页面 | 浏览器通过 Next.js 读取[样例 API](docs/demo/events-api.mjs)，显示三个活动，搜索和分类均可复现。 | 仅覆盖发现页和只读查询，样例库存为零。 |
+| 完整业务 E2E | 尚未在当前公开版本完成从注册、支付到出票和核销的整链路验收。 | Stripe TEST 回调、退款最终状态、真实邮件送达和多服务恢复均不能从页面演示推断。 |
+| 高级验收 | T23、T24、W28 及 72 窗口可靠性验收已停止推进。历史失败和未执行记录保留在离线归档。 | 已移出本次发布范围，验收仍未完成。 |
 
-状态词另包括 PARTIAL（实现不完整）和 NOT_IMPLEMENTED（无实现）。历史性能数字、付费能力和生产运行情况均未作为本次验收指标。
+## 按业务查实现与待验项
+
+| 业务 | 实现入口 | 待联机验证 |
+| --- | --- | --- |
+| 账户与角色 | [User](backend/services/user/internal/service)、[Gateway 身份接口](backend/services/gateway/internal/handler/auth_handler.go) | 收取验证码、登录并以实际角色访问受限接口。 |
+| 活动管理与选座 | [Event](backend/services/event/internal/service/event_service.go)、[座位仓储](backend/services/event/internal/repository) | 管理员发布活动、详情页读取、多个用户竞争同一座位及实时校准。 |
+| 订单与支付 | [Booking](backend/services/booking/internal/service/booking_service.go)、[Saga](backend/services/saga/internal/service)、[Payment](backend/services/payment/internal/gateway/stripe) | 从下单到支付确认或补偿，核对订单、支付与库存的最终状态。 |
+| 钱包、核销与售后 | [出票服务](backend/services/booking/internal/service/ticket_issuance.go)、[核销接口](backend/services/gateway/internal/handler/ticket_handler.go)、[退款服务](backend/services/booking/internal/service/unused_ticket_refund.go) | 签发票据、呈示有效凭证核销、审批未使用票退款并核实到账。 |
+| 通知与管理查询 | [通知投递](backend/services/notification/internal/service)、[订单详情](backend/services/gateway/internal/handler/admin_booking_detail_handler.go)、[Outbox 查询](backend/services/gateway/internal/handler/admin_outbox_handler.go) | 邮件送达、登录后读取通知，以及使用管理权限查询实际订单和事件。 |

@@ -123,8 +123,8 @@ func applyStoredReceipt(ctx context.Context, tx pgx.Tx, r *domain.ProviderReceip
 	}
 	o.PaymentID, o.BookingID, o.Generation = id, booking, generation
 	if o.RefundID != "" || r.EventType == "charge.refunded" {
-		// A refund callback is durable observation and reconciliation work, not
-		// proof of the cumulative succeeded full amount (verified by T08).
+		// A refund callback schedules reconciliation. Only verified successful
+		// refunds count toward the cumulative amount.
 		_, err = tx.Exec(ctx, `UPDATE payments SET reconciliation_state='pending',due_at=clock_timestamp(),updated_at=clock_timestamp(),
 		 refund_provider_status=CASE WHEN refund_state<>'succeeded' AND refund_provider_id=$2 THEN $3 ELSE refund_provider_status END WHERE id=$1`, id, o.RefundID, o.Status)
 	} else {

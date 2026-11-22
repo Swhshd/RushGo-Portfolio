@@ -43,8 +43,8 @@ func (o *SchedulerConfigConsumer) ConsumerHandler(ctx context.Context, event pkg
 		if err != nil || payload.Id == uuid.Nil || payload.Name == "" || payload.Version < 1 || payload.Timeout <= 0 {
 			return pkgkafka.ErrPermanent
 		}
-		// The owning runtime uses WithSecond. Parse before the legacy manager
-		// can mutate applied version; T20 owns atomic cron replacement/reload.
+		// Parse with the runtime's seconds field before applying the new
+		// configuration version.
 		parser := cronv3.NewParser(cronv3.Second | cronv3.Minute | cronv3.Hour | cronv3.Dom | cronv3.Month | cronv3.Dow | cronv3.Descriptor)
 		if _, err := parser.Parse(payload.IntervalExpression); err != nil {
 			return pkgkafka.ErrPermanent

@@ -1,6 +1,6 @@
 # RushGo backend
 
-The backend workspace contains the Go services, shared packages and Protocol Buffer contracts used by the RushGo application. It has eight services: Gateway, User, Event, Booking, Notification, Payment, Saga and Scheduler. The source retains the existing `github.com/ticketbox/...` Go module paths so current imports and generated contracts continue to work.
+The backend workspace contains the Go services, shared packages and Protocol Buffer contracts used by the RushGo application. It has eight services: Gateway, User, Event, Booking, Notification, Payment, Saga and Scheduler.
 
 ## Build
 
@@ -40,7 +40,7 @@ On a host where the default database ports are occupied, add the local override:
 docker compose -f docker-compose.yml -f docker-compose.local.yml up --build -d
 ```
 
-The authenticated User migration has preflight requirements. Review `scripts/migrate.sh` and its `AUTH_PREFLIGHT_DATABASE_URL` setup before running `make migrate`. The earlier `scripts/seed.sh` workflow is intentionally not included because it assumes an older registration contract and fixed demo accounts.
+The authenticated User migration has preflight requirements. Review `scripts/migrate.sh` and its `AUTH_PREFLIGHT_DATABASE_URL` setup before running `make migrate`.
 
 Stop the local services while retaining their database volumes with:
 
@@ -52,4 +52,4 @@ The optional `docker-compose.observability.yml` adds the local OpenTelemetry Col
 
 ## Validation scope
 
-Local builds and unit tests do not establish production readiness or complete purchase/refund verification. T23, T24, W28, campaign runs, fault-injection acceptance, cloud deployment and load tests are outside this resume-demo release scope.
+For the scope of the browser demo, unit checks and outstanding end-to-end verification, see [project status](../PROJECT_STATUS.md).
